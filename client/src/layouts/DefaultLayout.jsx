@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../components/Header";
 
+import NavMenu from "../components/NavMenu";
 const DefaultLayout = ({ children }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="font-roboto">
-      <Header />
-      <main>{children}</main>
+      <Header onOpenMenu={() => setMenuOpen(true)} />
+      <div>
+        <main className="px-[10px] lg:px-[50px] ">
+          <div className="pt-[70px]  lg:pt-[100px] lg:max-w-[1620px] mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
+      <NavMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
 };

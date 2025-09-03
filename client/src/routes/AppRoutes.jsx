@@ -1,11 +1,12 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import CartPage from "../components/CartPage";
+import HomePage from "../pages/HomePage";
 const AppRoutes = () => {
   return (
     <>
       <Routes>
-        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/cart" element={<CartPage />} />
       </Routes>
     </>
