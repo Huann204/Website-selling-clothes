@@ -9,7 +9,7 @@ const DefaultLayout = ({ children }) => {
       <Header onOpenMenu={() => setMenuOpen(true)} />
       <div>
         <main className="px-[10px] lg:px-[50px] ">
-          <div className="pt-[70px]  lg:pt-[100px] lg:max-w-[1620px] mx-auto">
+          <div className="pt-[80px]  lg:pt-[110px] lg:max-w-[1620px] mx-auto">
             {children}
           </div>
         </main>
