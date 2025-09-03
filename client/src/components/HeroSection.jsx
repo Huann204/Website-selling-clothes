@@ -30,7 +30,7 @@ const HeroSection = () => {
         arrows: false,
         pagination: true,
       }}
-      className="w-full mt-10"
+      className="w-full mb-10"
     >
       {slides.map((img, index) => (
         <SplideSlide key={index}>
