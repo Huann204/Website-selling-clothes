@@ -18,10 +18,12 @@ const Header = ({ onOpenMenu }) => {
         </div>
         <div className="hidden lg:block">
           <ul className="flex items-center gap-9 text-[15.6px]">
-            <li className="font-semibold cursor-pointer">TRANG CHỦ</li>
-            <li className="cursor-pointer">NAM</li>
-            <li className="cursor-pointer">NỮ</li>
-            <li className="cursor-pointer">LIÊN HỆ</li>
+            <li className="nav-underline cursor-pointer relative  font-semibold">
+              TRANG CHỦ
+            </li>
+            <li className=" nav-underline cursor-pointer relative ">NAM</li>
+            <li className=" nav-underline cursor-pointer relative ">NỮ</li>
+            <li className=" nav-underline cursor-pointer relative ">LIÊN HỆ</li>
           </ul>
         </div>
         <div className="hidden lg:flex justify-center flex-1">
