@@ -3,6 +3,7 @@ import AnnouncementBar from "../components/AnnouncementBar";
 import HeroSection from "../components/HeroSection";
 import GenderBanner from "../components/GenderBanner";
 import NewArrivals from "../components/NewArrivals";
+import PolicySection from "../components/PolicySection";
 
 const HomePage = () => {
   return (
@@ -11,6 +12,7 @@ const HomePage = () => {
       <HeroSection />
       <GenderBanner />
       <NewArrivals />
+      <PolicySection />
     </div>
   );
 };

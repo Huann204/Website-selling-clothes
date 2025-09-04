@@ -27,6 +27,7 @@ const NewArrivals = () => {
             speed: 800,
             arrows: false,
             pagination: false,
+            perMove: 1,
             breakpoints: {
               1024: { perPage: 1 }, // Màn hình <= 1024: 2 items
             },
