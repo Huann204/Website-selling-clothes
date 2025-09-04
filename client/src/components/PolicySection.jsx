@@ -27,7 +27,7 @@ const PolicySection = () => {
             Thanh toán COD
           </h3>
           <p className="text-[11px] lg:text-[13px] text-[#8d8d8d]">
-            Thanh toán khio nhận hàng (COD)
+            Thanh toán khi nhận hàng (COD)
           </p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import HeroSection from "../components/HeroSection";
 import GenderBanner from "../components/GenderBanner";
 import NewArrivals from "../components/NewArrivals";
 import PolicySection from "../components/PolicySection";
+import WeeklyBestSection from "../components/WeeklyBestSection";
 
 const HomePage = () => {
   return (
@@ -13,6 +14,7 @@ const HomePage = () => {
       <GenderBanner />
       <NewArrivals />
       <PolicySection />
+      <WeeklyBestSection />
     </div>
   );
 };
