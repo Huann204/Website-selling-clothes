@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 
 import NavMenu from "../components/NavMenu";
+import Footer from "../components/Footer";
 const DefaultLayout = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
@@ -14,6 +15,7 @@ const DefaultLayout = ({ children }) => {
           </div>
         </main>
       </div>
+      <Footer />
       <NavMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
