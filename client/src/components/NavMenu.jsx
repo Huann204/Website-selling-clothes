@@ -1,9 +1,15 @@
+import { useEffect } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 const NavMenu = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isOpen) document.body.classList.add("overflow-hidden");
+    else document.body.classList.remove("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [isOpen]);
   const handleNavigate = (path) => {
     navigate(path);
     if (onClose) onClose();
@@ -11,7 +17,7 @@ const NavMenu = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`absolute top-0 left-0 h-[100vh] w-full bg-white z-[100] pt-[30px]
+      className={` top-0 left-0 h-[100vh] w-full bg-white fixed inset-0 z-[1000]  pt-[30px]
                   transition-transform duration-500 ease-in-out
                   ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
