@@ -24,7 +24,7 @@ const NavMenu = ({ isOpen, onClose }) => {
       <div className="flex justify-center">
         <div
           className="cursor-pointer px-3 absolute top-[30px] left-4"
-          onClick={() => handleNavigate("/")}
+          onClick={() => onClose()}
         >
           <IoChevronBackOutline size={20} />
         </div>
