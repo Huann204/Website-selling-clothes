@@ -42,9 +42,9 @@ const Header = ({ onOpenMenu }) => {
           <div>
             <BiHeart className="size-5 lg:size-6" />
           </div>
-          <div>
+          <Link to={"/cart"}>
             <BiShoppingBag className="size-5 lg:size-6" />
-          </div>
+          </Link>
         </div>
       </div>
     </header>

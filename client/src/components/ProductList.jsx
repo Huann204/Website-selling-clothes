@@ -11,12 +11,12 @@ import Newsub3 from "../assets/images/NewArrivals/New3-3.jpeg";
 import New4 from "../assets/images/NewArrivals/New4.jpeg";
 import Newsub4 from "../assets/images/NewArrivals/New4-4.jpeg";
 import { FiShoppingCart } from "react-icons/fi";
-const WeeklyBestSection = () => {
+const ProductList = ({ title }) => {
   return (
     <div className="lg:mt-5 mt-20">
       <div className=" p-[5%]">
         <h2 className="text-[33px] font-semibold text-center mb-[70px]">
-          WWEKLY BEST
+          {title}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-4">
           <div className="px-8 mb-14">
@@ -401,4 +401,4 @@ const WeeklyBestSection = () => {
   );
 };
 
-export default WeeklyBestSection;
+export default ProductList;
