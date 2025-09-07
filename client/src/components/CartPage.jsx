@@ -3,6 +3,7 @@ import New3 from "../assets/images/NewArrivals/New3-3.jpeg";
 import New4 from "../assets/images/NewArrivals/New4-4.jpeg";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
+import AnnouncementBar from "../components/AnnouncementBar";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([
@@ -62,6 +63,7 @@ const CartPage = () => {
 
   return (
     <div>
+      <AnnouncementBar />
       <div className="grid grid-cols-1 md:grid-cols-10 gap-4 ">
         {/* Cột bên trái */}
         <div className="text-sm lg:col-span-3 my-[30px] shadow-[0_8px_24px_hsla(210,8%,62%,0.2)] p-5 lg:sticky lg:top-[100px] h-fit">

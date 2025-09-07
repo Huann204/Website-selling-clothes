@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ProductList from "./ProductList";
 import { FaArrowLeft } from "react-icons/fa";
+import AnnouncementBar from "./AnnouncementBar";
 
 const CategoryPage = () => {
   const Category = ["Áo thun", "Áo sơ mi", "Quần Jean", "Quần tây", "Váy"];
@@ -11,6 +12,7 @@ const CategoryPage = () => {
 
   return (
     <div>
+      <AnnouncementBar />
       {/* Header */}
       <div className="my-[50px]">
         <div className="text-[27.5px] font-semibold  mb-[15px]">FOR HIM</div>
@@ -94,7 +96,7 @@ const CategoryPage = () => {
 
       {/* Sidebar filter cho mobile */}
       <div
-        className={`fixed top-[70px] left-0 w-[50%] h-full bg-white z-[999] overflow-y-auto p-3 lg:hidden
+        className={`fixed top-[70px] left-0 w-[45%] h-full bg-white z-[999] overflow-y-auto p-3 lg:hidden
     transform transition-transform duration-500 ease-in-out
     ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
