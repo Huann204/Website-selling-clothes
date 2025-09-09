@@ -1,40 +1,29 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import AnnouncementBar from "./AnnouncementBar";
-import New1 from "../assets/images/NewArrivals/New1.jpeg";
-import New1sub from "../assets/images/NewArrivals/New1-1.jpeg";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import ProductList from "./ProductList";
 import NewArrivals from "./NewArrivals";
+import { useParams } from "react-router-dom";
+import { products } from "./data/products";
+import { CartContext } from "../context/CartContext";
 const ProductDetail = () => {
+  const { slug } = useParams();
   const [seeMore, setSeeMore] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
-
-  const items = {
-    categorySlug: "quan-tay",
-    color_info: "trắng be, vàng cát, đen, xanh mint, ghi nhạt",
-    description:
-      "Áo sơ mi nam form refined fit SSSTUTTER chất bamboo sơ vin linh hoạt FIT SHIRT",
-    form: "vải bamboo (thoáng mát và không nhăn)",
-    gender: "nam",
-    images: [New1, New1sub],
-    material: "vải bamboo (thoáng mát và không nhăn)",
-    origin: "Việt Nam",
-    price: "419000",
-    size: ["s", "m", "l", "xl"],
-    size_info: "0/1/2/3 tương ứng với S/M/L/XL ",
-    slug: "smart-pants",
-    title: "Smart Pants",
-    colors: [
-      { name: "trắng", code: "bg-white" },
-      { name: "đỏ", code: "bg-red-500" },
-      { name: "vàng", code: "bg-yellow-300" },
-      { name: "xanh", code: "bg-green-500" },
-    ],
-  };
-
-  const [logicImg, setLogicImg] = useState(items.images[0]);
+  const product = products.find((p) => p.slug === slug);
+  const [logicImg, setLogicImg] = useState(null);
   const [qty, setQty] = useState(1);
+  useEffect(() => {
+    if (product) {
+      setLogicImg(product.thumbnail.src);
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [product]);
 
   const dec = () => setQty((n) => Math.max(1, n - 1));
   const inc = () => setQty((n) => n + 1);
@@ -46,6 +35,25 @@ const ProductDetail = () => {
   const handleSize = (sz) => {
     setSelectedSize(sz);
   };
+  const activeVariant = product.variants.find(
+    (v) => v.color.name === selectedColor
+  );
+  if (!product) {
+    return <div className="p-10 text-center">Sản phẩm không tồn tại</div>;
+  }
+  const { addToCart } = useContext(CartContext);
+  const addCardToast = () => {
+    if (!selectedColor) {
+      toast.info("Bạn vui lòng chọn màu sắc");
+      return;
+    }
+    if (!selectedSize) {
+      toast.info("Bạn vui lòng chọn size");
+      return;
+    }
+    addToCart(product, selectedColor, selectedSize, qty);
+    toast.success("Đã thêm vào giỏ hàng");
+  };
 
   return (
     <div>
@@ -56,22 +64,24 @@ const ProductDetail = () => {
           <div className="grid grid-cols-10 lg:col-span-6 gap-2">
             {/* Thumbnails */}
             <div className="col-span-2">
-              {items?.images?.map((img, index) => {
+              {product.images.map((img, index) => {
                 return (
                   <button
                     type="button"
                     className={`mb-1 block border ${
-                      isActiveThumb(img) ? "border-black" : "border-transparent"
+                      isActiveThumb(img.src)
+                        ? "border-black"
+                        : "border-transparent"
                     }`}
                     key={index}
-                    onClick={() => setLogicImg(img)}
+                    onClick={() => setLogicImg(img.src)}
                     aria-label={`Xem ảnh ${index + 1}`}
                   >
                     <img
                       className="object-cover"
-                      src={img}
-                      alt={`${items.title} - ảnh ${index + 1}`}
+                      src={img.src}
                       loading="lazy"
+                      alt="img"
                     />
                   </button>
                 );
@@ -83,16 +93,16 @@ const ProductDetail = () => {
               <img
                 className="object-cover w-full h-auto"
                 src={logicImg}
-                alt={items.title}
+                alt="thumbnail"
               />
             </div>
           </div>
           {/* Right: Info/Actions */}
           <div className="text-[22px] p-[22px] lg:text-[26px] mt-4 lg:col-span-4 lg:sticky lg:top-[90px] h-fit">
-            <h3 className="font-semibold">{items.title}</h3>
+            <h3 className="font-semibold">{product.title}</h3>
 
             <div className="font-semibold mt-2">
-              <span className="">{formatPrice(items.price)}</span>
+              <span className="">{formatPrice(product.salePrice)}</span>
             </div>
 
             {/* Colors (giữ UI như cũ) */}
@@ -101,19 +111,22 @@ const ProductDetail = () => {
                 MÀU SẮC
               </div>
               <div className="flex items-center justify-start">
-                {items.colors.map((c, index) => (
+                {product.variants.map((c, index) => (
                   <button
                     key={index}
                     type="button"
-                    onClick={() => setSelectedColor(c.name)}
-                    aria-label={`Màu ${c.name}`}
+                    onClick={() => setSelectedColor(c.color.name)}
+                    aria-label={`Màu ${c.color.name}`}
                     className={`items-center border-2 ${
-                      selectedColor === c.name
+                      selectedColor === c.color.name
                         ? "border-black"
                         : "border-[#8d8d8d]"
                     } cursor-pointer flex justify-center mr-[11px] w-[30px] h-[30px] rounded-[50%]`}
                   >
-                    <span className={`h-5 w-5 ${c.code} rounded-[50%]`} />
+                    <span
+                      className="h-5 w-5 rounded-[50%]"
+                      style={{ backgroundColor: c.color.code }}
+                    />
                   </button>
                 ))}
               </div>
@@ -126,21 +139,32 @@ const ProductDetail = () => {
               </div>
 
               <div className="flex items-center justify-start text-[11px] lg:text-[13px]">
-                {items.size.map((sz, index) => (
-                  <button
-                    type="button"
-                    key={index}
-                    className={`uppercase items-center border-2 ${
-                      selectedSize === sz ? "border-black" : "border-[#8d8d8d]"
-                    } cursor-pointer flex justify-center mr-[11px] w-[30px] h-[30px] rounded-[50%]`}
-                    aria-label={`Chọn size ${sz.toUpperCase()}`}
-                    onClick={() => handleSize(sz)}
-                  >
-                    <span className="h-5 w-5 flex items-center justify-center rounded-[50%]">
-                      {sz}
-                    </span>
-                  </button>
-                ))}
+                {activeVariant ? (
+                  activeVariant?.sizes.map((s) => (
+                    <button
+                      type="button"
+                      key={s.sku}
+                      className={`uppercase items-center border-2 ${
+                        selectedSize === s.size
+                          ? "border-black"
+                          : "border-[#8d8d8d]"
+                      } cursor-pointer flex justify-center mr-[11px] w-[30px] h-[30px] rounded-[50%] ${
+                        s.stock === 0 ? "opacity-40 cursor-not-allowed" : ""
+                      }`}
+                      aria-label={`Chọn size ${s.size.toUpperCase()}`}
+                      onClick={() => handleSize(s.size)}
+                      disabled={s.stock === 0}
+                    >
+                      <span className="h-5 w-5 flex items-center justify-center rounded-[50%]">
+                        {s.size}
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    Vui lòng chọn màu trước
+                  </p>
+                )}
               </div>
             </div>
 
@@ -177,12 +201,14 @@ const ProductDetail = () => {
               <button
                 type="button"
                 className="bg-black py-[7.7px] px-[16.5px] cursor-pointer"
+                onClick={() => addCardToast()}
               >
                 THÊM VÀO GIỎ HÀNG
               </button>
               <button
                 type="button"
                 className="bg-black py-[7.7px] px-[16.5px] cursor-pointer"
+                onClick={() => addCardToast()}
               >
                 MUA NGAY
               </button>
@@ -194,17 +220,16 @@ const ProductDetail = () => {
               CHI TIẾT SẢN PHẨM
             </div>
 
-            <div className="font-semibold">{items.description}</div>
+            <div className="font-semibold">{product.description}</div>
 
             <div className="py-[10px] font-semibold text-[rgba(0,0,0,.8)]">
               THÔNG TIN SẢN PHẨM
             </div>
 
             <p>--</p>
-            <div>Màu sắc: {items.color_info}</div>
-            <div>Kích cỡ: {items.size_info}</div>
-            <div>Chất liệu: {items.material}</div>
-            <div>Xuất xứ: {items.origin}</div>
+
+            <div>Chất liệu: {product.form}</div>
+            <div>Xuất xứ: {product.origin}</div>
 
             <div className="py-[10px] font-semibold text-[rgba(0,0,0,.8)] uppercase">
               ✨ Quy định đổi trả hàng khi mua
