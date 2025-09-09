@@ -11,13 +11,15 @@ import New4 from "../assets/images/NewArrivals/New4.jpeg";
 import Newsub4 from "../assets/images/NewArrivals/New4-4.jpeg";
 import { FiShoppingCart } from "react-icons/fi";
 
-const NewArrivals = () => {
+const NewArrivals = ({ title }) => {
   return (
     <div className="mt-5">
-      <div className="bg-[#aabec6] p-[5%]">
-        <h2 className="text-[33px] font-semibold text-center mb-20">
-          WHAT'S NEW
-        </h2>
+      <div className={`${title && "bg-[#aabec6]"} p-[5%]`}>
+        {title && (
+          <h2 className="text-[33px] font-semibold text-center mb-20">
+            {title}
+          </h2>
+        )}
         <Splide
           options={{
             perPage: 4,

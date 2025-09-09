@@ -12,7 +12,7 @@ const HomePage = () => {
       <AnnouncementBar />
       <HeroSection />
       <GenderBanner />
-      <NewArrivals />
+      <NewArrivals title="WHAT'S NEW" />
       <PolicySection />
       <ProductList title="WWEKLY BEST" />
     </div>
