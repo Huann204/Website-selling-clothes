@@ -1,14 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductList from "./ProductList";
 import { FaArrowLeft } from "react-icons/fa";
 import AnnouncementBar from "./AnnouncementBar";
+import { useParams } from "react-router-dom";
 
 const CategoryPage = () => {
+  const { slug } = useParams();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selected, setSelected] = useState([]);
   const Category = ["Áo thun", "Áo sơ mi", "Quần Jean", "Quần tây", "Váy"];
   const Size = ["S", "M", "L", "XL", "XXL"];
   const Colors = ["Trắng", "Hồng", "Đen", "Vàng", "Xanh dương"];
-
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const subcategory = {
+    "Áo thun": "ao-thun",
+    "Áo sơ mi": "ao-so-mi",
+    "Quần Jean": "quan-jeans",
+    "Quần tây": "quan-tay",
+    Váy: "vay",
+  };
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [selected]);
+  const handleChange = (item, checked) => {
+    const slug = subcategory[item]; // map sang slug
+    if (checked) {
+      setSelected((prev) => [...prev, slug]);
+    } else {
+      setSelected((prev) => prev.filter((i) => i !== slug));
+    }
+  };
 
   return (
     <div>
@@ -43,6 +66,7 @@ const CategoryPage = () => {
                     type="checkbox"
                     name="category"
                     className="mr-[10px] h-[15px] w-[15px]"
+                    onChange={(e) => handleChange(item, e.target.checked)}
                   />
                   {item}
                 </div>
@@ -85,13 +109,13 @@ const CategoryPage = () => {
         </div>
         {/* Content */}
         <div className="mt-[-70px] lg:col-span-8">
-          <ProductList category="for-him" />
+          <ProductList category={slug} subcategory={selected} />
         </div>
       </div>
 
       {/* Content mobile */}
       <div className="lg:hidden mt-[-70px]">
-        <ProductList category="for-him" />
+        <ProductList category={slug} subcategory={selected} />
       </div>
 
       {/* Sidebar filter cho mobile */}
@@ -111,7 +135,11 @@ const CategoryPage = () => {
           <h3 className="font-semibold mb-3 text-[14px]">DANH MỤC SẢN PHẨM</h3>
           {Category.map((item, index) => (
             <div key={index} className="mb-2 text-[12px] flex items-center">
-              <input type="checkbox" className="mr-2 h-[15px] w-[15px]" />
+              <input
+                type="checkbox"
+                className="mr-2 h-[15px] w-[15px]"
+                onChange={(e) => handleChange(item, e.target.checked)}
+              />
               {item}
             </div>
           ))}

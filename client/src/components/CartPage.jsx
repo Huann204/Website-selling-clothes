@@ -113,7 +113,7 @@ const CartPage = () => {
               </div>
               <div className="flex flex-col lg:flex-row lg:flex-1 lg:items-center lg:justify-between">
                 <div>
-                  <p className="my-2 ">{item.title}</p>
+                  <p className="my-2 ">{`${item.title} ${item.color} - ${item.size}`}</p>
                 </div>
                 <span>{item.price.toLocaleString()} VNĐ</span>
                 <div className="flex my-3">

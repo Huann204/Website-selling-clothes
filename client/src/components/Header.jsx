@@ -29,22 +29,30 @@ const Header = ({ onOpenMenu }) => {
                 TRANG CHỦ
               </li>
             </Link>
-            <li className=" nav-underline cursor-pointer relative ">NAM</li>
-            <li className=" nav-underline cursor-pointer relative ">NỮ</li>
-            <li className=" nav-underline cursor-pointer relative ">LIÊN HỆ</li>
+            <Link to={"/category/for-him"}>
+              <li className=" nav-underline cursor-pointer relative ">NAM</li>
+            </Link>
+            <Link to={"/category/for-her"}>
+              <li className=" nav-underline cursor-pointer relative ">NỮ</li>
+            </Link>
+            <Link to={"/contact"}>
+              <li className=" nav-underline cursor-pointer relative ">
+                LIÊN HỆ
+              </li>
+            </Link>
           </ul>
         </div>
         <Link to={"/"} className="hidden lg:flex justify-center flex-1">
           <img src={Logo} alt="logo" />
         </Link>
         <div className="flex items-center gap-[10px] lg:gap-9 ">
-          <div>
+          <button type="button" aria-label="Tìm kiếm">
             <BiSearch className="size-5 lg:size-6" />
-          </div>
-          <div>
+          </button>
+          <button type="button" aria-label="Yêu thích">
             <BiHeart className="size-5 lg:size-6" />
-          </div>
-          <Link to={"/cart"} className="relative">
+          </button>
+          <Link to={"/cart"} className="relative" aria-label="Giỏ hàng">
             <BiShoppingBag className="size-5 lg:size-6" />
             <div className="absolute flex text-[13px] bg-black w-[18px] h-[18px] rounded-[50%] items-center justify-center text-white right-[-8px] top-[-6px] ">
               {cart.length ? cart.length : 0}

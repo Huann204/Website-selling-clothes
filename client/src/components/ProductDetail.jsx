@@ -4,11 +4,12 @@ import AnnouncementBar from "./AnnouncementBar";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import ProductList from "./ProductList";
 import NewArrivals from "./NewArrivals";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { products } from "./data/products";
 import { CartContext } from "../context/CartContext";
 const ProductDetail = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -54,7 +55,18 @@ const ProductDetail = () => {
     addToCart(product, selectedColor, selectedSize, qty);
     toast.success("Đã thêm vào giỏ hàng");
   };
-
+  const buyToast = () => {
+    if (!selectedColor) {
+      toast.info("Bạn vui lòng chọn màu sắc");
+      return;
+    }
+    if (!selectedSize) {
+      toast.info("Bạn vui lòng chọn size");
+      return;
+    }
+    addToCart(product, selectedColor, selectedSize, qty);
+    navigate("/cart");
+  };
   return (
     <div>
       <AnnouncementBar />
@@ -208,7 +220,7 @@ const ProductDetail = () => {
               <button
                 type="button"
                 className="bg-black py-[7.7px] px-[16.5px] cursor-pointer"
-                onClick={() => addCardToast()}
+                onClick={() => buyToast()}
               >
                 MUA NGAY
               </button>

@@ -4,10 +4,22 @@ import { products } from "./data/products";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-const ProductList = ({ title, category }) => {
-  const list = category
-    ? products.filter((p) => p.category === category)
-    : products;
+const ProductList = ({ title, category, subcategory = [] }) => {
+  const filtered = products.filter(
+    (p) =>
+      (!category || p.category === category) &&
+      (!subcategory.length || subcategory.includes(p.subcategory))
+  );
+  const list = !category && !subcategory.length ? products : filtered;
+  // const list = filtered.length === 0 ? products : filtered;
+  // const list = products.filter(
+  //   (p) =>
+  //     (!category || p.category === category) &&
+  //     (!subcategory || p.subcategory === subcategory)
+  // );
+  // const list = category
+  //   ? products.filter((p) => p.category === category)
+  //   : products;
   const formatVND = (n) =>
     typeof n === "number"
       ? n.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
@@ -40,12 +52,14 @@ const ProductList = ({ title, category }) => {
                 >
                   <img
                     src={thumb}
+                    loading="lazy"
                     className="w-full object-cover transform transition-all duration-700 ease-in-out group-hover:scale-0 group-hover:opacity-0"
                     alt={product?.thumbnail?.alt || product.title}
                   />
 
                   <img
                     src={hover}
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transform scale-0 opacity-0 transition-all duration-700 ease-in-out group-hover:scale-100 group-hover:opacity-100"
                     alt={product?.hoverImage?.alt || product.title}
                   />

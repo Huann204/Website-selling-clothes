@@ -1,19 +1,13 @@
 import { useEffect } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const NavMenu = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (isOpen) document.body.classList.add("overflow-hidden");
     else document.body.classList.remove("overflow-hidden");
     return () => document.body.classList.remove("overflow-hidden");
   }, [isOpen]);
-  const handleNavigate = (path) => {
-    navigate(path);
-    if (onClose) onClose();
-  };
 
   return (
     <div
@@ -31,29 +25,25 @@ const NavMenu = ({ isOpen, onClose }) => {
 
         {/* Danh sách menu */}
         <ul className="text-[13px] text-center flex-1">
-          <li
-            className="mb-[10px] cursor-pointer"
-            onClick={() => handleNavigate("/")}
-          >
-            TRANG CHỦ
+          <li className="mb-[10px]">
+            <Link to="/" onClick={onClose} className="block">
+              TRANG CHỦ
+            </Link>
           </li>
-          <li
-            className="mb-[10px] cursor-pointer"
-            onClick={() => handleNavigate("/men")}
-          >
-            NAM
+          <li className="mb-[10px]">
+            <Link to="/category/for-him" onClick={onClose} className="block">
+              NAM
+            </Link>
           </li>
-          <li
-            className="mb-[10px] cursor-pointer"
-            onClick={() => handleNavigate("/women")}
-          >
-            NỮ
+          <li className="mb-[10px]">
+            <Link to="/category/for-her" onClick={onClose} className="block">
+              NỮ
+            </Link>
           </li>
-          <li
-            className="cursor-pointer"
-            onClick={() => handleNavigate("/contact")}
-          >
-            LIÊN HỆ
+          <li>
+            <Link to="/contact" onClick={onClose} className="block">
+              LIÊN HỆ
+            </Link>
           </li>
         </ul>
       </div>
