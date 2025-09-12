@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import New3 from "../assets/images/NewArrivals/New3-3.jpeg";
 import New4 from "../assets/images/NewArrivals/New4-4.jpeg";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
 import AnnouncementBar from "../components/AnnouncementBar";
 import { CartContext } from "../context/CartContext";
+import { Link } from "react-router-dom";
 
 const CartPage = () => {
   const { cart, setCart } = useContext(CartContext);
@@ -84,9 +85,11 @@ const CartPage = () => {
           </div>
           <div className="text-center">
             {cart.length > 0 && (
-              <button className="bg-black w-full text-white py-2 px-4 rounded mb-4">
-                Đặt hàng
-              </button>
+              <Link to={"/checkout"}>
+                <button className="bg-black w-full text-white py-2 px-4 rounded mb-4">
+                  Đặt hàng
+                </button>
+              </Link>
             )}
             <button className="bg-black w-full text-white py-2 px-4 rounded">
               Tiếp tục mua hàng

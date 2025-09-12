@@ -14,7 +14,8 @@ const HomePage = () => {
       <GenderBanner />
       <NewArrivals title="WHAT'S NEW" />
       <PolicySection />
-      <ProductList title="WWEKLY BEST" />
+      <ProductList title="ÁO THUN" subcategory={"ao-thun"} limit={8} />
+      <ProductList title="ÁO SƠ MI" subcategory={"ao-so-mi"} limit={8} />
     </div>
   );
 };

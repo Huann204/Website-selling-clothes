@@ -35,7 +35,7 @@ import Him12sub from "../../assets/images/Him/12.1.jpeg";
 export const products = [
   {
     id: "1",
-    slug: "unum-tank",
+    slug: "ao-thun",
     title: "Unum Tank",
     category: "for-her",
     gender: "her",
@@ -133,7 +133,7 @@ export const products = [
     slug: "dots-mini-skirt",
     title: "Dots mini Skirt",
     category: "for-her",
-    subcategory: "vay",
+    subcategory: "ao-thun",
     gender: "her",
     price: 419000,
     salePrice: 399000, // null nếu không sale
@@ -183,7 +183,7 @@ export const products = [
     slug: "compo-bodysuit",
     title: "Compo Bodysuit",
     category: "for-her",
-    subcategory: "vay",
+    subcategory: "ao-thun",
     gender: "her",
     price: 419000,
     salePrice: 399000, // null nếu không sale

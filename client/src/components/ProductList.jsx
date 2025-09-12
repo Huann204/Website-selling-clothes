@@ -4,13 +4,23 @@ import { products } from "./data/products";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-const ProductList = ({ title, category, subcategory = [] }) => {
+const ProductList = ({
+  title,
+  category,
+  subcategory = [],
+  showOnlySale = false,
+  limit,
+}) => {
   const filtered = products.filter(
     (p) =>
       (!category || p.category === category) &&
-      (!subcategory.length || subcategory.includes(p.subcategory))
+      (!subcategory.length || subcategory.includes(p.subcategory)) &&
+      (!showOnlySale || (p.salePrice && p.salePrice < p.price))
   );
-  const list = !category && !subcategory.length ? products : filtered;
+  const list =
+    !category && !subcategory.length && !showOnlySale ? products : filtered;
+
+  const finalList = limit ? list.slice(0, limit) : list;
   // const list = filtered.length === 0 ? products : filtered;
   // const list = products.filter(
   //   (p) =>
@@ -37,7 +47,7 @@ const ProductList = ({ title, category, subcategory = [] }) => {
             category ? "lg:grid-cols-3" : "lg:grid-cols-4"
           }`}
         >
-          {list.map((product) => {
+          {finalList.map((product) => {
             const thumb = product?.thumbnail?.src;
             const hover = product?.hoverImage?.src;
             const hasSale =
