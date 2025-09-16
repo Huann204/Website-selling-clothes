@@ -3,7 +3,8 @@ import Header from "../components/Header";
 
 import NavMenu from "../components/NavMenu";
 import Footer from "../components/Footer";
-const DefaultLayout = ({ children }) => {
+import { Outlet } from "react-router-dom";
+const DefaultLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="font-roboto">
@@ -11,7 +12,7 @@ const DefaultLayout = ({ children }) => {
       <div>
         <main className="px-[10px] lg:px-[50px] ">
           <div className="pt-[80px]  lg:pt-[110px] lg:max-w-[1620px] mx-auto">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>

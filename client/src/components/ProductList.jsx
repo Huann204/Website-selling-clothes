@@ -1,35 +1,42 @@
-import React from "react";
-
-import { products } from "./data/products";
+import React, { useEffect, useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-const ProductList = ({
-  title,
-  category,
-  subcategory = [],
-  showOnlySale = false,
-  limit,
-}) => {
-  const filtered = products.filter(
-    (p) =>
-      (!category || p.category === category) &&
-      (!subcategory.length || subcategory.includes(p.subcategory)) &&
-      (!showOnlySale || (p.salePrice && p.salePrice < p.price))
-  );
-  const list =
-    !category && !subcategory.length && !showOnlySale ? products : filtered;
+const ProductList = ({ title, category, subcategory = [], page, limit }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
 
-  const finalList = limit ? list.slice(0, limit) : list;
-  // const list = filtered.length === 0 ? products : filtered;
-  // const list = products.filter(
-  //   (p) =>
-  //     (!category || p.category === category) &&
-  //     (!subcategory || p.subcategory === subcategory)
-  // );
-  // const list = category
-  //   ? products.filter((p) => p.category === category)
-  //   : products;
+        // Build query string
+        const query = new URLSearchParams({
+          ...(category && { category }),
+          ...(subcategory && { subcategory }),
+          page,
+          limit,
+        });
+        const res = await fetch(
+          `http://localhost:5000/api/products?${query.toString()}`
+        );
+        if (!res.ok) throw new Error("Lỗi fetch products");
+
+        const data = await res.json();
+        setProducts(data.products || data); // tuỳ BE trả về
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, [category, subcategory, page, limit]);
+  if (loading) return <p>⏳ Đang tải sản phẩm...</p>;
+  if (error) return <p>❌ Lỗi: {error}</p>;
+
   const formatVND = (n) =>
     typeof n === "number"
       ? n.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
@@ -47,7 +54,7 @@ const ProductList = ({
             category ? "lg:grid-cols-3" : "lg:grid-cols-4"
           }`}
         >
-          {finalList.map((product) => {
+          {products.map((product) => {
             const thumb = product?.thumbnail?.src;
             const hover = product?.hoverImage?.src;
             const hasSale =
@@ -55,9 +62,9 @@ const ProductList = ({
               product.salePrice < product.price;
 
             return (
-              <div key={product.id} className="px-8 mb-14">
+              <div className="px-8 mb-14">
                 <Link
-                  to={`/detail/${product.slug}`}
+                  to={`/detail/${product.slug}-${product._id}`}
                   className="group relative w-full overflow-hidden"
                 >
                   <img

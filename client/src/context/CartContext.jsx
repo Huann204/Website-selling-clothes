@@ -47,9 +47,8 @@ export function CartProvider({ children }) {
 
   // cập nhật số lượng
   function updateQty(id, qty) {
-    const nextQty = Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : 1;
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, qty: nextQty } : item))
+      prev.map((item) => (item.id === id ? { ...item, qty } : item))
     );
   }
 

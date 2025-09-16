@@ -5,26 +5,53 @@ import { LuMinus, LuPlus } from "react-icons/lu";
 import ProductList from "./ProductList";
 import NewArrivals from "./NewArrivals";
 import { useNavigate, useParams } from "react-router-dom";
-import { products } from "./data/products";
 import { CartContext } from "../context/CartContext";
 const ProductDetail = () => {
-  const { slug } = useParams();
+  const [products, setProducts] = useState([]);
+  const { slugId } = useParams();
   const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
-  const product = products.find((p) => p.slug === slug);
   const [logicImg, setLogicImg] = useState(null);
   const [qty, setQty] = useState(1);
+  const colorMap = {
+    đen: "#000000",
+    trắng: "#FFFFFF",
+    đỏ: "#FF0000",
+    xanh: "#008000",
+  };
+
   useEffect(() => {
-    if (product) {
-      setLogicImg(product.thumbnail.src);
+    const fetchProduct = async () => {
+      try {
+        const id = slugId.split("-").pop(); // lấy id từ slug
+        const response = await fetch(
+          `http://localhost:5000/api/products/${id}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setProducts(data);
+        console.log(data?.variants);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchProduct();
+  }, [slugId]);
+
+  useEffect(() => {
+    if (products) {
+      setLogicImg(products?.thumbnail?.src);
     }
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  }, [product]);
+  }, [products]);
 
   const dec = () => setQty((n) => Math.max(1, n - 1));
   const inc = () => setQty((n) => n + 1);
@@ -36,10 +63,10 @@ const ProductDetail = () => {
   const handleSize = (sz) => {
     setSelectedSize(sz);
   };
-  const activeVariant = product.variants.find(
+  const activeVariant = products?.variants?.find(
     (v) => v.color.name === selectedColor
   );
-  if (!product) {
+  if (!products) {
     return <div className="p-10 text-center">Sản phẩm không tồn tại</div>;
   }
   const { addToCart } = useContext(CartContext);
@@ -52,7 +79,7 @@ const ProductDetail = () => {
       toast.info("Bạn vui lòng chọn size");
       return;
     }
-    addToCart(product, selectedColor, selectedSize, qty);
+    addToCart(products, selectedColor, selectedSize, qty);
     toast.success("Đã thêm vào giỏ hàng");
   };
   const buyToast = () => {
@@ -64,9 +91,10 @@ const ProductDetail = () => {
       toast.info("Bạn vui lòng chọn size");
       return;
     }
-    addToCart(product, selectedColor, selectedSize, qty);
+    addToCart(products, selectedColor, selectedSize, qty);
     navigate("/cart");
   };
+  if (!products) return <p>⏳ Đang tải sản phẩm...</p>;
   return (
     <div>
       <AnnouncementBar />
@@ -76,7 +104,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-10 lg:col-span-6 gap-2">
             {/* Thumbnails */}
             <div className="col-span-2">
-              {product.images.map((img, index) => {
+              {products?.images?.map((img, index) => {
                 return (
                   <button
                     type="button"
@@ -111,10 +139,10 @@ const ProductDetail = () => {
           </div>
           {/* Right: Info/Actions */}
           <div className="text-[22px] p-[22px] lg:text-[26px] mt-4 lg:col-span-4 lg:sticky lg:top-[90px] h-fit">
-            <h3 className="font-semibold">{product.title}</h3>
+            <h3 className="font-semibold">{products?.title}</h3>
 
             <div className="font-semibold mt-2">
-              <span className="">{formatPrice(product.salePrice)}</span>
+              <span className="">{formatPrice(products?.salePrice)}</span>
             </div>
 
             {/* Colors (giữ UI như cũ) */}
@@ -123,7 +151,7 @@ const ProductDetail = () => {
                 MÀU SẮC
               </div>
               <div className="flex items-center justify-start">
-                {product.variants.map((c, index) => (
+                {products?.variants?.map((c, index) => (
                   <button
                     key={index}
                     type="button"
@@ -137,7 +165,7 @@ const ProductDetail = () => {
                   >
                     <span
                       className="h-5 w-5 rounded-[50%]"
-                      style={{ backgroundColor: c.color.code }}
+                      style={{ backgroundColor: colorMap[c.color.name] }}
                     />
                   </button>
                 ))}
@@ -232,7 +260,7 @@ const ProductDetail = () => {
               CHI TIẾT SẢN PHẨM
             </div>
 
-            <div className="font-semibold">{product.description}</div>
+            <div className="font-semibold">{products?.description}</div>
 
             <div className="py-[10px] font-semibold text-[rgba(0,0,0,.8)]">
               THÔNG TIN SẢN PHẨM
@@ -240,8 +268,8 @@ const ProductDetail = () => {
 
             <p>--</p>
 
-            <div>Chất liệu: {product.form}</div>
-            <div>Xuất xứ: {product.origin}</div>
+            <div>Chất liệu: {products?.form}</div>
+            <div>Xuất xứ: {products?.origin}</div>
 
             <div className="py-[10px] font-semibold text-[rgba(0,0,0,.8)] uppercase">
               ✨ Quy định đổi trả hàng khi mua
@@ -324,7 +352,10 @@ const ProductDetail = () => {
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">
             SẢN PHẨM TƯƠNG TỰ
           </div>
-          <ProductList />
+          <ProductList
+            category={products.category}
+            subcategory={products.subcategory}
+          />
         </div>
         <div className="mt-8">
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">

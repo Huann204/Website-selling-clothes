@@ -1,6 +1,4 @@
 import React, { useContext, useEffect } from "react";
-import New3 from "../assets/images/NewArrivals/New3-3.jpeg";
-import New4 from "../assets/images/NewArrivals/New4-4.jpeg";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
 import AnnouncementBar from "../components/AnnouncementBar";
@@ -8,8 +6,7 @@ import { CartContext } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
 const CartPage = () => {
-  const { cart, setCart } = useContext(CartContext);
-  console.log(cart);
+  const { cart, setCart, removeFromCart, total } = useContext(CartContext);
 
   useEffect(() => {
     window.scrollTo({
@@ -17,31 +14,6 @@ const CartPage = () => {
       behavior: "smooth",
     });
   }, []);
-  // const { cart, total, removeFromCart, updateQty } = useContext(CartContext);
-  // const [cartItems, setCartItems] = useState([
-  //   {
-  //     id: 1,
-  //     name: "Stone Short - blue - xl",
-  //     price: 194000,
-  //     qty: 3,
-  //     image: New3,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Stone Short - red - m",
-  //     price: 210000,
-  //     qty: 1,
-  //     image: New4,
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Stone Short - black - l",
-  //     price: 180000,
-  //     qty: 2,
-  //     image: New3,
-  //   },
-  // ]);
-
   // tăng số lượng
   const increaseQty = (id) => {
     setCart((prev) =>
@@ -60,14 +32,6 @@ const CartPage = () => {
     );
   };
 
-  // xóa sản phẩm
-  const removeItem = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  //  tính tổng tiền
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-
   return (
     <div>
       <AnnouncementBar />
@@ -80,7 +44,7 @@ const CartPage = () => {
           <div className="flex justify-between items-center py-[10px] mb-[10px]">
             <p>Thành tiền</p>
             <span className="text-[22px] font-semibold">
-              {totalPrice.toLocaleString()} VNĐ
+              {total.toLocaleString()} VNĐ
             </span>
           </div>
           <div className="text-center">
@@ -137,7 +101,7 @@ const CartPage = () => {
                   </div>
                 </div>
                 <div
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeFromCart(item.id)}
                   className="cursor-pointer text-red-500"
                 >
                   <FaRegTrashAlt size={16} />
