@@ -2,6 +2,11 @@ import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { CartProvider } from "../context/CartContext";
 import DefaultLayout from "../layouts/DefaultLayout";
+import AdminProductsManagement from "../admin/components/AdminProductsManagement";
+import AdminSidebar from "../admin/components/AdminSidebar";
+import AdminProductCreate from "../admin/components/AdminProductCreate";
+import Test from "../admin/components/test";
+import AdminProductEdit from "../admin/components/AdminProductEdit";
 const CartPage = lazy(() => import("../components/CartPage"));
 const HomePage = lazy(() => import("../pages/HomePage"));
 const CategoryPage = lazy(() => import("../components/CategoryPage"));
@@ -28,9 +33,18 @@ const AppRoutes = () => {
 
           {/* ADMIN ROUTES */}
           <Route>
-            {/* <Route path="/admin" element={<AdminFashionDashboard />} /> */}
+            <Route path="/admin" element={<AdminSidebar />} />
           </Route>
-
+          <Route path="/admin/products" element={<AdminProductsManagement />} />
+          <Route
+            path="/admin/products/create"
+            element={<AdminProductCreate />}
+          />
+          <Route
+            path="/admin/products/edit/:id"
+            element={<AdminProductEdit />}
+          />
+          <Route path="/admin/test" element={<Test />} />
           {/* 404 */}
           <Route
             path="*"
