@@ -15,7 +15,7 @@ export function CartProvider({ children }) {
 
   // thêm vào giỏ
   function addToCart(product, color, size, qty = 1) {
-    const id = `${product.id}_${color}_${size}`;
+    const id = `${product._id}_${color}_${size}`;
     setCart((prev) => {
       const exist = prev.find((item) => item.id === id);
       if (exist) {
@@ -27,7 +27,7 @@ export function CartProvider({ children }) {
         ...prev,
         {
           id,
-          productId: product.id,
+          productId: product._id,
           title: product.title,
           slug: product.slug,
           thumbnail: product.thumbnail.src,
