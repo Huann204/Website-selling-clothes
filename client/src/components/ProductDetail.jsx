@@ -19,7 +19,7 @@ const ProductDetail = () => {
     đen: "#000000",
     trắng: "#FFFFFF",
     đỏ: "#FF0000",
-    xanh: "#008000",
+    xám: "#808080",
   };
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const ProductDetail = () => {
         }
         const data = await response.json();
         setProducts(data);
-        console.log(data?.variants);
+        console.log(data);
       } catch (error) {
         console.error("Error:", error);
       }
