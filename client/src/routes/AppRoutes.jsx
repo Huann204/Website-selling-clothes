@@ -7,6 +7,7 @@ const ProductDetail = lazy(() => import("../components/ProductDetail"));
 import { CartProvider } from "../context/CartContext";
 import DefaultLayout from "../layouts/DefaultLayout";
 import CheckoutPage from "../components/CheckoutPage";
+import OrderSuccessPage from "../components/OrderSuccessPage";
 const AppRoutes = () => {
   return (
     <>
@@ -21,6 +22,7 @@ const AppRoutes = () => {
               <Route path="/category/:slug" element={<CategoryPage />} />
               <Route path="/detail/:slug" element={<ProductDetail />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/success" element={<OrderSuccessPage />} />
               {/* Placeholder routes */}
               <Route
                 path="/contact"

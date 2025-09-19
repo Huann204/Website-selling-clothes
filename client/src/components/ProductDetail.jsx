@@ -324,7 +324,11 @@ const ProductDetail = () => {
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">
             SẢN PHẨM TƯƠNG TỰ
           </div>
-          <ProductList />
+          <ProductList
+            category={product.category}
+            subcategory={product.subcategory}
+            limit={3}
+          />
         </div>
         <div className="mt-8">
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">

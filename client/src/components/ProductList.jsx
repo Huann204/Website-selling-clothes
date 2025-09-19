@@ -42,11 +42,7 @@ const ProductList = ({
             {title}
           </h2>
         )}
-        <div
-          className={`grid grid-cols-1 ${
-            category ? "lg:grid-cols-3" : "lg:grid-cols-4"
-          }`}
-        >
+        <div className={`grid grid-cols-1 lg:grid-cols-4`}>
           {finalList.map((product) => {
             const thumb = product?.thumbnail?.src;
             const hover = product?.hoverImage?.src;

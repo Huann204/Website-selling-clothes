@@ -6,6 +6,7 @@ import { BsTruck } from "react-icons/bs";
 import { CartContext } from "../context/CartContext";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 const CheckoutPage = () => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -13,7 +14,15 @@ const CheckoutPage = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
   const [SelectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
-
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    phone: "",
+    address: "",
+    payment: "",
+  });
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
   useEffect(() => {
     async function getProvinces() {
       const url = "https://provinces.open-api.vn/api/p/";
@@ -77,7 +86,32 @@ const CheckoutPage = () => {
 
   //  tính tổng tiền
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // Validate function
+  const validateForm = () => {
+    let newErrors = {};
+    if (!formData.fullname.trim()) newErrors.fullname = "Vui lòng nhập họ tên";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Email không hợp lệ";
+    if (!/^[0-9]{9,11}$/.test(formData.phone))
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    if (!selectedProvince || !SelectedDistrict || !selectedWard)
+      newErrors.addressSelect = "Vui lòng chọn đầy đủ địa chỉ";
+    if (!formData.address.trim())
+      newErrors.address = "Vui lòng nhập số nhà, tên đường";
+    if (!formData.payment)
+      newErrors.payment = "Vui lòng chọn phương thức thanh toán";
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      navigate("/success");
+    } else {
+      alert("⚠️ Vui lòng kiểm tra lại thông tin!");
+    }
+  };
   return (
     <>
       <AnnouncementBar />
@@ -93,7 +127,15 @@ const CheckoutPage = () => {
                     className="py-[10px] px-[15px] border border-[#ccc] w-full"
                     required
                     placeholder="*Họ và tên"
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullname: e.target.value })
+                    }
                   />
+                  {errors.fullname && (
+                    <p className="text-red-500 text-[12.5px] lg:text-sm">
+                      {errors.fullname}
+                    </p>
+                  )}
                 </div>
 
                 <div className="mb-5">
@@ -102,7 +144,15 @@ const CheckoutPage = () => {
                     className="py-[10px] px-[15px] border border-[#ccc] w-full"
                     required
                     placeholder="*Email"
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-[12.5px] lg:text-sm">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <input
@@ -110,14 +160,21 @@ const CheckoutPage = () => {
                     className="py-[10px] px-[15px] border border-[#ccc] w-full"
                     required
                     placeholder="*Số điện thoại"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
                   />
+                  {errors.phone && (
+                    <p className="text-red-500 text-[12.5px] lg:text-sm">
+                      {errors.phone}
+                    </p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <div className="flex gap-2 justify-between">
                     <select
-                      name=""
-                      id=""
-                      className="border rounded border-[#ccc] p-1 h-[35px] lg:w-[30%]"
+                      className="border rounded border-[#ccc] p-1 h-[35px] w-24 lg:w-[30%]"
                       value={selectedProvince}
                       onChange={(e) => {
                         const code = e.target.value;
@@ -174,6 +231,11 @@ const CheckoutPage = () => {
                         ))}
                     </select>
                   </div>
+                  {errors.addressSelect && (
+                    <p className="text-red-500 text-[12.5px] lg:text-sm">
+                      {errors.addressSelect}
+                    </p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <input
@@ -181,7 +243,15 @@ const CheckoutPage = () => {
                     className="py-[10px] px-[15px] border border-[#ccc] w-full"
                     required
                     placeholder="*Số nhà tên đường..."
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
                   />
+                  {errors.address && (
+                    <p className="text-red-500 text-[12.5px] lg:text-sm">
+                      {errors.address}
+                    </p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <span className="text-[11px] lg:text-[14px]">
@@ -195,7 +265,13 @@ const CheckoutPage = () => {
               <h3 className="font-bold mb-5">PHƯƠNG THỨC THANH TOÁN</h3>
               <div className="text-[12.5px] lg:text-[15px] ">
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    onChange={(e) =>
+                      setFormData({ ...formData, payment: e.target.value })
+                    }
+                  />
                   <div className="mx-[10px]">
                     <RiVisaLine size={16} />
                   </div>
@@ -204,7 +280,13 @@ const CheckoutPage = () => {
                   </span>
                 </div>
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    onChange={(e) =>
+                      setFormData({ ...formData, payment: e.target.value })
+                    }
+                  />
                   <div className="mx-[10px]">
                     <IoWalletOutline size={16} />
                   </div>
@@ -213,7 +295,13 @@ const CheckoutPage = () => {
                   </span>
                 </div>
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    onChange={(e) =>
+                      setFormData({ ...formData, payment: e.target.value })
+                    }
+                  />
                   <div className="mx-[10px]">
                     <BsTruck size={16} />
                   </div>
@@ -222,6 +310,11 @@ const CheckoutPage = () => {
                   </span>
                 </div>
               </div>
+              {errors.payment && (
+                <p className="text-red-500 text-[12.5px] lg:text-sm">
+                  {errors.payment}
+                </p>
+              )}
             </div>
           </div>
           <div className="col-span-10 lg:col-span-5 ">
@@ -307,7 +400,10 @@ const CheckoutPage = () => {
                     <span>Thành tiền</span>{" "}
                     <span>{(totalPrice + 20000).toLocaleString()} VNĐ</span>
                   </div>
-                  <button className="bg-black text-white text-center w-full py-[11px] text-[11px] lg:text-[14px] font-semibold">
+                  <button
+                    className="bg-black text-white text-center w-full py-[11px] text-[11px] lg:text-[14px] font-semibold"
+                    onClick={handleSubmit}
+                  >
                     HOÀN TẤT ĐƠN HÀNG
                   </button>
                 </div>
