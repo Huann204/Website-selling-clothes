@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -9,24 +9,36 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  UserStar,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 // Sidebar tĩnh cho trang Admin bán quần áo (chủ đạo màu trắng)
 // Tailwind-only, không phụ thuộc shadcn để tránh lỗi alias
 export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
   const mainNav = [
-    { label: "Tổng quan", icon: LayoutDashboard, href: "#" },
-    { label: "Đơn hàng", icon: ShoppingBag, href: "#" },
-    { label: "Sản phẩm", icon: Package, href: "/admin/products" },
-    { label: "Danh mục", icon: Layers, href: "#" },
-    { label: "Khách hàng", icon: Users, href: "#" },
-    { label: "Khuyến mãi", icon: Tag, href: "#" },
-    { label: "Phân tích", icon: BarChart3, href: "#" },
+    { label: "Tổng quan", icon: LayoutDashboard, to: "#" },
+    { label: "Đơn hàng", icon: ShoppingBag, to: "/admin/orders" },
+    { label: "Sản phẩm", icon: Package, to: "/admin/products" },
+    { label: "Danh mục", icon: Layers, to: "#" },
+    { label: "Khách hàng", icon: Users, to: "#" },
+    {
+      label: "Quản lý quản trị viên",
+      icon: UserStar,
+      to: "/admin/manage-admins",
+    },
+    { label: "Khuyến mãi", icon: Tag, to: "#" },
+    { label: "Phân tích", icon: BarChart3, to: "#" },
   ];
 
-  const systemNav = [{ label: "Cài đặt", icon: Settings, href: "#" }];
-
+  const systemNav = [{ label: "Cài đặt", icon: Settings, to: "#" }];
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate("/admin/login");
+  };
   return (
     <aside className="sticky top-0 h-screen lg:w-72 shrink-0 border-r border-slate-200 bg-white text-slate-800">
       {/* Header */}
@@ -85,8 +97,8 @@ export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
 
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-slate-200 p-3 bg-white">
-        <a
-          href="#"
+        <div
+          onClick={handleLogout}
           className="group relative flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-slate-200">
@@ -96,7 +108,7 @@ export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
           <span className="ml-auto text-xs text-slate-500 opacity-0 transition group-hover:opacity-100">
             Ctrl + L
           </span>
-        </a>
+        </div>
       </div>
     </aside>
   );
@@ -117,7 +129,7 @@ function NavItem({ item, active }) {
   return (
     <li>
       <Link
-        to={item.href}
+        to={item.to}
         aria-current={active ? "page" : undefined}
         className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 ${
           active ? "bg-slate-100 ring-1 ring-slate-200" : ""

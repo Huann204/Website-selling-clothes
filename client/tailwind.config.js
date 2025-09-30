@@ -8,11 +8,6 @@ export default {
       fontFamily: {
         roboto: ["Roboto", "sans-serif"],
       },
-      className: {
-        inputClass: [
-          "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-sky-100 focus:border-sky-300 focus:ring",
-        ],
-      },
     },
   },
 
