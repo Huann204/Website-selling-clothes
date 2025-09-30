@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import Loading from "../shared/Loading";
 
-const ProductList = ({ title, category, subcategory = [], page, limit }) => {
+const ProductList = ({ title, category, subcategory = "", page, limit }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +25,7 @@ const ProductList = ({ title, category, subcategory = [], page, limit }) => {
         if (!res.ok) throw new Error("Lỗi fetch products");
 
         const data = await res.json();
-        setProducts(data.products || data); // tuỳ BE trả về
+        setProducts(data.products || data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -34,9 +35,20 @@ const ProductList = ({ title, category, subcategory = [], page, limit }) => {
 
     fetchProducts();
   }, [category, subcategory, page, limit]);
-  if (loading) return <p>⏳ Đang tải sản phẩm...</p>;
-  if (error) return <p>❌ Lỗi: {error}</p>;
-
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loading />
+      </div>
+    );
+  if (error) return <p> Lỗi: {error}</p>;
+  if (!products.length) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-gray-500">
+        Không có sản phẩm nào trong danh mục này.
+      </div>
+    );
+  }
   const formatVND = (n) =>
     typeof n === "number"
       ? n.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
@@ -49,11 +61,7 @@ const ProductList = ({ title, category, subcategory = [], page, limit }) => {
             {title}
           </h2>
         )}
-        <div
-          className={`grid grid-cols-1 ${
-            category ? "lg:grid-cols-3" : "lg:grid-cols-4"
-          }`}
-        >
+        <div className={`grid grid-cols-1 lg:grid-cols-4`}>
           {products.map((product) => {
             const thumb = product?.thumbnail?.src;
             const hover = product?.hoverImage?.src;
@@ -62,7 +70,7 @@ const ProductList = ({ title, category, subcategory = [], page, limit }) => {
               product.salePrice < product.price;
 
             return (
-              <div className="px-8 mb-14">
+              <div className="px-8 mb-14" key={product._id}>
                 <Link
                   to={`/detail/${product.slug}-${product._id}`}
                   className="group relative w-full overflow-hidden"

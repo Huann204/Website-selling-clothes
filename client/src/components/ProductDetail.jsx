@@ -6,8 +6,9 @@ import ProductList from "./ProductList";
 import NewArrivals from "./NewArrivals";
 import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import sizeHim from "../assets/images/Size/sizehim.webp";
 const ProductDetail = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState({});
   const { slugId } = useParams();
   const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);
@@ -19,7 +20,22 @@ const ProductDetail = () => {
     đen: "#000000",
     trắng: "#FFFFFF",
     đỏ: "#FF0000",
+    xanh: "#0000FF",
+    vàng: "#FFFF00",
+    hồng: "#FFC0CB",
+    tím: "#800080",
+    cam: "#FFA500",
+    nâu: "#8B4513",
     xám: "#808080",
+    "xanh lá": "#008000",
+    be: "#F5F5DC",
+    kem: "#FFFDD0",
+    ghi: "#DCDCDC",
+    navy: "#000080",
+    olive: "#808000",
+    than: "#36454F",
+    rêu: "#556B2F",
+    bạc: "#C0C0C0",
   };
 
   useEffect(() => {
@@ -27,14 +43,13 @@ const ProductDetail = () => {
       try {
         const id = slugId.split("-").pop(); // lấy id từ slug
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `https://website-selling-clothes-be-production.up.railway.app/api/products/${id}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         setProducts(data);
-        console.log(data);
       } catch (error) {
         console.error("Error:", error);
       }
@@ -107,13 +122,13 @@ const ProductDetail = () => {
               {products?.images?.map((img, index) => {
                 return (
                   <button
+                    key={img._id}
                     type="button"
                     className={`mb-1 block border ${
                       isActiveThumb(img.src)
                         ? "border-black"
                         : "border-transparent"
                     }`}
-                    key={index}
                     onClick={() => setLogicImg(img.src)}
                     aria-label={`Xem ảnh ${index + 1}`}
                   >
@@ -142,7 +157,9 @@ const ProductDetail = () => {
             <h3 className="font-semibold">{products?.title}</h3>
 
             <div className="font-semibold mt-2">
-              <span className="">{formatPrice(products?.salePrice)}</span>
+              <span className="">
+                {formatPrice(products?.salePrice || products?.price)}
+              </span>
             </div>
 
             {/* Colors (giữ UI như cũ) */}
@@ -182,8 +199,8 @@ const ProductDetail = () => {
                 {activeVariant ? (
                   activeVariant?.sizes.map((s) => (
                     <button
+                      key={s._id}
                       type="button"
-                      key={s.sku}
                       className={`uppercase items-center border-2 ${
                         selectedSize === s.size
                           ? "border-black"
@@ -333,6 +350,7 @@ const ProductDetail = () => {
                   </p>
                   <p>Không ngâm áo trong xà phòng quá lâu để tránh bạc màu.</p>
                 </div>
+                <img src={sizeHim} className="object-cover w-full" alt="" />
               </>
             )}
 
@@ -352,10 +370,12 @@ const ProductDetail = () => {
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">
             SẢN PHẨM TƯƠNG TỰ
           </div>
-          <ProductList
-            category={products.category}
-            subcategory={products.subcategory}
-          />
+          {products?.category && products?.subcategory && (
+            <ProductList
+              category={products.category}
+              subcategory={products.subcategory}
+            />
+          )}
         </div>
         <div className="mt-8">
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">
