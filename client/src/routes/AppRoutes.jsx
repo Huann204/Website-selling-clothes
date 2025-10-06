@@ -16,6 +16,7 @@ import AdminWrapper from "../admin/components/Layout/AdminWrapper";
 import ProtectedRoute from "../admin/ProtectedRoute/ProtectedRoute";
 import ManageAdmins from "../admin/components/ManageAdmins";
 import GuestRoute from "../admin/components/GuestRoute/GuestRoute";
+import OrderSuccessPage from "../components/OrderSuccessPage";
 const CartPage = lazy(() => import("../components/CartPage"));
 const HomePage = lazy(() => import("../pages/HomePage"));
 const CategoryPage = lazy(() => import("../components/CategoryPage"));
@@ -34,6 +35,10 @@ const AppRoutes = () => {
             <Route path="category/:slug" element={<CategoryPage />} />
             <Route path="detail/:slugId" element={<ProductDetail />} />
             <Route path="checkout" element={<CheckoutPage />} />
+            <Route
+              path="order-success/:orderId"
+              element={<OrderSuccessPage />}
+            />
             <Route
               path="contact"
               element={<div className="py-10">Liên hệ (đang cập nhật)</div>}

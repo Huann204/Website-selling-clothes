@@ -35,7 +35,7 @@ const CartPage = () => {
   return (
     <div>
       <AnnouncementBar />
-      <div className="grid grid-cols-1 md:grid-cols-10 gap-4 ">
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 ">
         {/* Cột bên trái */}
         <div className="text-sm lg:col-span-3 my-[30px] shadow-[0_8px_24px_hsla(210,8%,62%,0.2)] p-5 lg:sticky lg:top-[100px] h-fit">
           <p className="mb-[10px] ">
@@ -80,7 +80,9 @@ const CartPage = () => {
               </div>
               <div className="flex flex-col lg:flex-row lg:flex-1 lg:items-center lg:justify-between">
                 <div>
-                  <p className="my-2 ">{`${item.title} ${item.color} - ${item.size}`}</p>
+                  <p className="my-2 ">{`${item.title} ${
+                    item.color.charAt(0).toUpperCase() + item.color.slice(1)
+                  } - ${item.size}`}</p>
                 </div>
                 <span>{item.price.toLocaleString()} VNĐ</span>
                 <div className="flex my-3">

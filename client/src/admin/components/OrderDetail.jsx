@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import {
@@ -16,67 +16,82 @@ import {
   Printer,
   Download,
 } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const { admin } = useContext(AuthContext);
+  const token = admin?.token;
   // Mock data - thay thế bằng API call thực tế
   useEffect(() => {
     const fetchOrder = async () => {
       setLoading(true);
       // Simulate API call
-      setTimeout(() => {
-        setOrder({
-          id: id || "ORD001",
-          orderNumber: "ORD001",
-          customer: {
-            name: "Nguyễn Văn A",
-            email: "nguyenvana@email.com",
-            phone: "0123456789",
-            address: "123 Đường ABC, Quận 1, TP.HCM",
-          },
-          total: 1500000,
-          subtotal: 1500000,
-          shipping: 0,
-          discount: 0,
-          status: "pending",
-          paymentMethod: "COD",
-          paymentStatus: "pending",
-          date: "2024-01-15T10:30:00Z",
-          shippingDate: null,
-          deliveryDate: null,
-          notes: "Giao hàng vào buổi chiều",
-          items: [
-            {
-              id: 1,
-              name: "Áo thun nam cao cấp",
-              variant: "Trắng - Size L",
-              price: 500000,
-              quantity: 2,
-              image: "/api/placeholder/100/100",
-              total: 1000000,
-            },
-            {
-              id: 2,
-              name: "Quần jeans slim fit",
-              variant: "Xanh - Size 32",
-              price: 500000,
-              quantity: 1,
-              image: "/api/placeholder/100/100",
-              total: 500000,
-            },
-          ],
-          shipping: {
-            method: "Giao hàng tiêu chuẩn",
-            trackingNumber: "GH123456789",
-            estimatedDelivery: "2024-01-20",
-          },
-        });
-        setLoading(false);
-      }, 1000);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/admin/orders/${id}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setOrder(data);
+          setLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      }
+      // setTimeout(() => {
+      //   setOrder({
+      //     id: id || "ORD001",
+      //     orderNumber: "ORD001",
+      //     customer: {
+      //       name: "Nguyễn Văn A",
+      //       email: "nguyenvana@email.com",
+      //       phone: "0123456789",
+      //       address: "123 Đường ABC, Quận 1, TP.HCM",
+      //     },
+      //     total: 1500000,
+      //     subtotal: 1500000,
+      //     shipping: 0,
+      //     discount: 0,
+      //     status: "pending",
+      //     paymentMethod: "COD",
+      //     paymentStatus: "pending",
+      //     date: "2024-01-15T10:30:00Z",
+      //     shippingDate: null,
+      //     deliveryDate: null,
+      //     notes: "Giao hàng vào buổi chiều",
+      //     items: [
+      //       {
+      //         id: 1,
+      //         name: "Áo thun nam cao cấp",
+      //         variant: "Trắng - Size L",
+      //         price: 500000,
+      //         quantity: 2,
+      //         image: "/api/placeholder/100/100",
+      //         total: 1000000,
+      //       },
+      //       {
+      //         id: 2,
+      //         name: "Quần jeans slim fit",
+      //         variant: "Xanh - Size 32",
+      //         price: 500000,
+      //         quantity: 1,
+      //         image: "/api/placeholder/100/100",
+      //         total: 500000,
+      //       },
+      //     ],
+      //     shipping: {
+      //       method: "Giao hàng tiêu chuẩn",
+      //       trackingNumber: "GH123456789",
+      //       estimatedDelivery: "2024-01-20",
+      //     },
+      //   });
+      //   setLoading(false);
+      // }, 1000);
     };
 
     fetchOrder();
@@ -149,8 +164,25 @@ export default function OrderDetail() {
 
   const handleStatusUpdate = (newStatus) => {
     // API call để cập nhật trạng thái
-    console.log("Updating status to:", newStatus);
-    setOrder((prev) => ({ ...prev, status: newStatus }));
+    fetch(`http://localhost:5000/api/admin/orders/${order._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ status: newStatus }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to update status");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Status updated successfully:", data);
+        setOrder((prev) => ({ ...prev, status: newStatus }));
+      })
+      .catch((error) => {
+        console.error("Error updating status:", error);
+      });
   };
 
   if (loading) {
@@ -192,7 +224,7 @@ export default function OrderDetail() {
 
   return (
     <AdminLayout
-      title={`Chi tiết đơn hàng #${order.orderNumber}`}
+      title={`Chi tiết đơn hàng #${order._id}`}
       activeLabel="Đơn hàng"
       backTo="/admin/orders"
       showSaveButton={false}
@@ -220,7 +252,7 @@ export default function OrderDetail() {
                   Trạng thái đơn hàng
                 </h3>
                 <p className="text-sm text-slate-600">
-                  Cập nhật lần cuối: {formatDate(order.date)}
+                  Cập nhật lần cuối: {formatDate(order.updatedAt)}
                 </p>
               </div>
             </div>
@@ -249,7 +281,7 @@ export default function OrderDetail() {
                   <label className="text-sm font-medium text-slate-600">
                     Họ tên
                   </label>
-                  <p className="text-slate-900">{order.customer.name}</p>
+                  <p className="text-slate-900">{order.customer?.name}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-slate-400" />
@@ -257,7 +289,7 @@ export default function OrderDetail() {
                     <label className="text-sm font-medium text-slate-600">
                       Email
                     </label>
-                    <p className="text-slate-900">{order.customer.email}</p>
+                    <p className="text-slate-900">{order.customer?.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -266,7 +298,7 @@ export default function OrderDetail() {
                     <label className="text-sm font-medium text-slate-600">
                       Số điện thoại
                     </label>
-                    <p className="text-slate-900">{order.customer.phone}</p>
+                    <p className="text-slate-900">{order.customer?.phone}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -275,7 +307,12 @@ export default function OrderDetail() {
                     <label className="text-sm font-medium text-slate-600">
                       Địa chỉ
                     </label>
-                    <p className="text-slate-900">{order.customer.address}</p>
+                    <p className="text-slate-900">
+                      {order.customer.address?.street},{" "}
+                      {order.customer.address?.ward},{" "}
+                      {order.customer.address?.district},{" "}
+                      {order.customer.address?.province}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -294,29 +331,32 @@ export default function OrderDetail() {
                 <div className="space-y-4">
                   {order.items.map((item) => (
                     <div
-                      key={item.id}
+                      key={item._id}
                       className="flex items-center gap-4 p-4 border border-slate-100 rounded-lg"
                     >
                       <div className="h-16 w-16 bg-slate-100 rounded-lg flex items-center justify-center">
-                        <Package className="h-8 w-8 text-slate-400" />
+                        {/* <Package className="h-8 w-8 text-slate-400" /> */}
+                        <img src={item.thumbnail} alt="" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-slate-900 truncate">
-                          {item.name}
+                          {item.title}
                         </h4>
-                        <p className="text-sm text-slate-600">{item.variant}</p>
+                        <p className="text-sm text-slate-600">
+                          {item.color} {item.size}
+                        </p>
                         <div className="flex items-center gap-4 mt-1">
                           <span className="text-sm text-slate-600">
-                            Số lượng: {item.quantity}
+                            Số lượng: {item.qty}
                           </span>
                           <span className="text-sm font-medium text-slate-900">
-                            {formatPrice(item.price)} × {item.quantity}
+                            {formatPrice(item.price)} × {item.qty}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-slate-900">
-                          {formatPrice(item.total)}
+                          {formatPrice(item.price * item.qty)}
                         </p>
                       </div>
                     </div>
@@ -333,13 +373,13 @@ export default function OrderDetail() {
                   <div className="flex justify-between">
                     <span className="text-slate-600">Tạm tính:</span>
                     <span className="text-slate-900">
-                      {formatPrice(order.subtotal)}
+                      {formatPrice(order.total)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600">Phí vận chuyển:</span>
                     <span className="text-slate-900">
-                      {formatPrice(order.shipping)}
+                      {formatPrice(order.shipping?.fee)}
                     </span>
                   </div>
                   {order.discount > 0 && (
@@ -356,7 +396,7 @@ export default function OrderDetail() {
                         Tổng cộng:
                       </span>
                       <span className="text-lg font-semibold text-slate-900">
-                        {formatPrice(order.total)}
+                        {formatPrice(order.grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -374,7 +414,7 @@ export default function OrderDetail() {
                     <div className="flex justify-between">
                       <span className="text-slate-600">Phương thức:</span>
                       <span className="text-slate-900">
-                        {order.paymentMethod}
+                        {order.payment?.method}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -386,7 +426,7 @@ export default function OrderDetail() {
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {order.paymentStatus === "paid"
+                        {order.payment?.status === "paid"
                           ? "Đã thanh toán"
                           : "Chưa thanh toán"}
                       </span>
@@ -403,21 +443,24 @@ export default function OrderDetail() {
                     <div className="flex justify-between">
                       <span className="text-slate-600">Phương thức:</span>
                       <span className="text-slate-900">
-                        {order.shipping.method}
+                        {/* {order.shipping.method} */}
+                        Giao hàng tiêu chuẩn
                       </span>
                     </div>
                     {order.shipping.trackingNumber && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Mã vận đơn:</span>
                         <span className="text-slate-900 font-mono">
-                          {order.shipping.trackingNumber}
+                          {/* {order.shipping.trackingNumber} */}
+                          GH123456789
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between">
                       <span className="text-slate-600">Dự kiến giao:</span>
                       <span className="text-slate-900">
-                        {order.shipping.estimatedDelivery}
+                        {/* {order.shipping.estimatedDelivery} */}
+                        20/01/2024
                       </span>
                     </div>
                   </div>
@@ -431,7 +474,8 @@ export default function OrderDetail() {
                     Ghi chú đơn hàng
                   </h3>
                   <p className="text-slate-700 bg-slate-50 p-3 rounded-lg">
-                    {order.notes}
+                    {/* {order.notes} */}
+                    Giao hàng vào buổi chiều
                   </p>
                 </div>
               )}

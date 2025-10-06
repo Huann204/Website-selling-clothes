@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AnnouncementBar from "./AnnouncementBar";
 import { RiVisaLine } from "react-icons/ri";
 import { IoWalletOutline } from "react-icons/io5";
@@ -11,9 +12,17 @@ const CheckoutPage = () => {
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [SelectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
-
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    paymentMethod: "",
+  });
+  const navigate = useNavigate();
   useEffect(() => {
     async function getProvinces() {
       const url = "https://provinces.open-api.vn/api/p/";
@@ -34,20 +43,166 @@ const CheckoutPage = () => {
     const url = `https://provinces.open-api.vn/api/p/${code}?depth=2`;
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       setDistricts(data.districts || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching districts:", err);
+      setErrors((prev) => ({
+        ...prev,
+        districts: "Không thể tải danh sách quận/huyện",
+      }));
     }
   };
+
   const getWards = async (code) => {
     const url = `https://provinces.open-api.vn/api/d/${code}?depth=2`;
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       setWards(data.wards || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching wards:", err);
+      setErrors((prev) => ({
+        ...prev,
+        wards: "Không thể tải danh sách phường/xã",
+      }));
+    }
+  };
+  // Validation functions
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Vui lòng nhập họ tên";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/\s/g, ""))) {
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    if (!selectedProvince) {
+      newErrors.province = "Vui lòng chọn tỉnh/thành phố";
+    }
+
+    if (!selectedDistrict) {
+      newErrors.district = "Vui lòng chọn quận/huyện";
+    }
+
+    if (!selectedWard) {
+      newErrors.ward = "Vui lòng chọn phường/xã";
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = "Vui lòng nhập địa chỉ cụ thể";
+    }
+
+    if (!formData.paymentMethod) {
+      newErrors.paymentMethod = "Vui lòng chọn phương thức thanh toán";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert("Giỏ hàng trống!");
+      return;
+    }
+
+    try {
+      const selectedProvinceObj = provinces.find(
+        (p) => p.code == selectedProvince
+      );
+      const selectedDistrictObj = districts.find(
+        (d) => d.code == selectedDistrict
+      );
+      const selectedWardObj = wards.find((w) => w.code == selectedWard);
+
+      const orderData = {
+        customer: {
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          address: {
+            province: selectedProvinceObj?.name || "",
+            district: selectedDistrictObj?.name || "",
+            ward: selectedWardObj?.name || "",
+            street: formData.address,
+          },
+        },
+        items: cart.map((item) => ({
+          productId: item.productId,
+          title: item.title,
+          slug: item.slug,
+          thumbnail: item.thumbnail,
+          color: item.color,
+          size: item.size,
+          price: item.price,
+          qty: item.qty,
+        })),
+        payment: {
+          method: formData.paymentMethod, // "card", "shoppeepay", "cod"
+          status: formData.paymentMethod === "cod" ? "pending" : "pending",
+        },
+        shipping: {
+          fee: 20000,
+          status: "preparing",
+        },
+        discount: 0, // TODO: implement discount logic
+        total: totalPrice,
+        grandTotal: totalPrice + 20000, // total + shipping - discount
+        status: "pending",
+      };
+
+      console.log("Order data to be sent:", orderData);
+
+      // TODO: Send to your API endpoint
+      const response = await fetch("http://localhost:5000/api/admin/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create order");
+      }
+
+      const result = await response.json();
+      const orderId = result._id;
+
+      // Clear cart after successful order
+      navigate(`/order-success/${orderId}`);
+      setCart([]);
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      alert("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
     }
   };
 
@@ -82,7 +237,10 @@ const CheckoutPage = () => {
     <>
       <AnnouncementBar />
       <div>
-        <form className="grid grid-cols-10 lg:gap-4 mt-[30px] items-stretch">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-10 lg:gap-4 mt-[30px] items-stretch"
+        >
           <div className="col-span-10 lg:col-span-5 ">
             <div className="border border-[#ccc] p-5 mb-10 shadow-[0_8px_24px_hsla(210,8%,62%,0.2)]">
               <h3 className="font-bold mb-5">THÔNG TIN GIAO HÀNG</h3>
@@ -90,34 +248,59 @@ const CheckoutPage = () => {
                 <div className="mb-5">
                   <input
                     type="text"
-                    className="py-[10px] px-[15px] border border-[#ccc] w-full"
-                    required
+                    className={`py-[10px] px-[15px] border w-full ${
+                      errors.fullName ? "border-red-500" : "border-[#ccc]"
+                    }`}
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                     placeholder="*Họ và tên"
+                    aria-label="Họ và tên"
                   />
+                  {errors.fullName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.fullName}
+                    </p>
+                  )}
                 </div>
 
                 <div className="mb-5">
                   <input
-                    type="text"
-                    className="py-[10px] px-[15px] border border-[#ccc] w-full"
-                    required
+                    type="email"
+                    className={`py-[10px] px-[15px] border w-full ${
+                      errors.email ? "border-red-500" : "border-[#ccc]"
+                    }`}
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="*Email"
+                    aria-label="Email"
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <input
-                    type="text"
-                    className="py-[10px] px-[15px] border border-[#ccc] w-full"
-                    required
+                    type="tel"
+                    className={`py-[10px] px-[15px] border w-full ${
+                      errors.phone ? "border-red-500" : "border-[#ccc]"
+                    }`}
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="*Số điện thoại"
+                    aria-label="Số điện thoại"
                   />
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <div className="flex gap-2 justify-between">
                     <select
-                      name=""
-                      id=""
-                      className="border rounded border-[#ccc] p-1 h-[35px] lg:w-[30%]"
+                      className={`border rounded p-1 h-[35px] w-[30%] ${
+                        errors.province ? "border-red-500" : "border-[#ccc]"
+                      }`}
                       value={selectedProvince}
                       onChange={(e) => {
                         const code = e.target.value;
@@ -126,8 +309,12 @@ const CheckoutPage = () => {
                         setSelectedWard("");
                         setDistricts([]);
                         setWards([]);
-                        getDistricts(code);
+                        if (code) getDistricts(code);
+                        if (errors.province) {
+                          setErrors((prev) => ({ ...prev, province: "" }));
+                        }
                       }}
+                      aria-label="Tỉnh/Thành phố"
                     >
                       <option value="">Chọn địa chỉ</option>
                       {provinces?.map((city) => (
@@ -137,18 +324,21 @@ const CheckoutPage = () => {
                       ))}
                     </select>
                     <select
-                      name=""
-                      id=""
-                      className="border rounded border-[#ccc] p-1 h-[35px] lg:w-[30%]"
-                      value={SelectedDistrict}
-                      // onChange={(e) => setSelectedDistrict(e.target.value)}
+                      className={`border rounded p-1 h-[35px] w-[30%] ${
+                        errors.district ? "border-red-500" : "border-[#ccc]"
+                      }`}
+                      value={selectedDistrict}
                       onChange={(e) => {
                         const code = e.target.value;
                         setSelectedDistrict(code);
                         setSelectedWard("");
                         setWards([]);
-                        getWards(code);
+                        if (code) getWards(code);
+                        if (errors.district) {
+                          setErrors((prev) => ({ ...prev, district: "" }));
+                        }
                       }}
+                      aria-label="Quận/Huyện"
                     >
                       <option value="">*Quận/Huyện</option>
                       {districts &&
@@ -159,11 +349,17 @@ const CheckoutPage = () => {
                         ))}
                     </select>
                     <select
-                      name=""
-                      id=""
-                      className="border rounded border-[#ccc] p-1 h-[35px] lg:w-[30%]"
+                      className={`border rounded p-1 h-[35px] w-[30%] ${
+                        errors.ward ? "border-red-500" : "border-[#ccc]"
+                      }`}
                       value={selectedWard}
-                      onChange={(e) => setSelectedWard(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedWard(e.target.value);
+                        if (errors.ward) {
+                          setErrors((prev) => ({ ...prev, ward: "" }));
+                        }
+                      }}
+                      aria-label="Phường/Xã"
                     >
                       <option value="">*Phường Xã</option>
                       {wards &&
@@ -175,13 +371,37 @@ const CheckoutPage = () => {
                     </select>
                   </div>
                 </div>
+                {(errors.province || errors.district || errors.ward) && (
+                  <div className="mb-3">
+                    {errors.province && (
+                      <p className="text-red-500 text-xs">{errors.province}</p>
+                    )}
+                    {errors.district && (
+                      <p className="text-red-500 text-xs">{errors.district}</p>
+                    )}
+                    {errors.ward && (
+                      <p className="text-red-500 text-xs">{errors.ward}</p>
+                    )}
+                  </div>
+                )}
                 <div className="mb-5">
                   <input
                     type="text"
-                    className="py-[10px] px-[15px] border border-[#ccc] w-full"
-                    required
+                    className={`py-[10px] px-[15px] border w-full ${
+                      errors.address ? "border-red-500" : "border-[#ccc]"
+                    }`}
+                    value={formData.address}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
                     placeholder="*Số nhà tên đường..."
+                    aria-label="Địa chỉ cụ thể"
                   />
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.address}
+                    </p>
+                  )}
                 </div>
                 <div className="mb-5">
                   <span className="text-[11px] lg:text-[14px]">
@@ -195,7 +415,16 @@ const CheckoutPage = () => {
               <h3 className="font-bold mb-5">PHƯƠNG THỨC THANH TOÁN</h3>
               <div className="text-[12.5px] lg:text-[15px] ">
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="card"
+                    checked={formData.paymentMethod === "card"}
+                    onChange={(e) =>
+                      handleInputChange("paymentMethod", e.target.value)
+                    }
+                    aria-label="Thanh toán thẻ"
+                  />
                   <div className="mx-[10px]">
                     <RiVisaLine size={16} />
                   </div>
@@ -204,7 +433,16 @@ const CheckoutPage = () => {
                   </span>
                 </div>
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="shoppeepay"
+                    checked={formData.paymentMethod === "shoppeepay"}
+                    onChange={(e) =>
+                      handleInputChange("paymentMethod", e.target.value)
+                    }
+                    aria-label="Thanh toán ví ShoppePay"
+                  />
                   <div className="mx-[10px]">
                     <IoWalletOutline size={16} />
                   </div>
@@ -213,7 +451,16 @@ const CheckoutPage = () => {
                   </span>
                 </div>
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input type="radio" name="payment" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="cod"
+                    checked={formData.paymentMethod === "cod"}
+                    onChange={(e) =>
+                      handleInputChange("paymentMethod", e.target.value)
+                    }
+                    aria-label="Thanh toán khi giao hàng"
+                  />
                   <div className="mx-[10px]">
                     <BsTruck size={16} />
                   </div>
@@ -221,6 +468,11 @@ const CheckoutPage = () => {
                     Thanh toán khi giao hàng
                   </span>
                 </div>
+                {errors.paymentMethod && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.paymentMethod}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -244,13 +496,16 @@ const CheckoutPage = () => {
                     <div className="mr-5 h-[150px] ">
                       <img
                         src={item.thumbnail}
-                        className="h-full"
+                        className="h-full object-cover"
                         alt={item.thumbnail}
                       />
                     </div>
                     <div className="flex flex-col lg:flex-row lg:flex-1 lg:items-center lg:justify-between">
                       <div>
-                        <p className="my-2 ">{`${item.title} ${item.color} - ${item.size}`}</p>
+                        <p className="my-2 ">{`${item.title} ${
+                          item.color.charAt(0).toUpperCase() +
+                          item.color.slice(1)
+                        } - ${item.size}`}</p>
                       </div>
                       <span>{item.price.toLocaleString()} VNĐ</span>
                       <div className="flex my-3">
@@ -307,7 +562,15 @@ const CheckoutPage = () => {
                     <span>Thành tiền</span>{" "}
                     <span>{(totalPrice + 20000).toLocaleString()} VNĐ</span>
                   </div>
-                  <button className="bg-black text-white text-center w-full py-[11px] text-[11px] lg:text-[14px] font-semibold">
+                  <button
+                    type="submit"
+                    disabled={cart.length === 0}
+                    className={`text-white text-center w-full py-[11px] text-[11px] lg:text-[14px] font-semibold transition-colors ${
+                      cart.length === 0
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-black hover:bg-gray-800"
+                    }`}
+                  >
                     HOÀN TẤT ĐƠN HÀNG
                   </button>
                 </div>

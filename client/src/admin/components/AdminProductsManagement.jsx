@@ -50,7 +50,6 @@ export default function AdminProductsManagement() {
         }
         const result = await response.json();
         setProducts(result.products);
-        console.log(result);
       } catch (error) {
         setError(error);
       } finally {

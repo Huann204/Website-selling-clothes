@@ -164,7 +164,6 @@ export default function AdminProductCreate() {
         variants,
       };
 
-      // Gửi sang Node.js
       const res = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         headers,
@@ -172,7 +171,6 @@ export default function AdminProductCreate() {
       });
       if (!res.ok) throw new Error("Lỗi khi lưu sản phẩm!");
 
-      // Thành công chuyển hướng
       navigate("/admin/products");
       const data = await res.json();
       console.log("Đã lưu sản phẩm:", data);

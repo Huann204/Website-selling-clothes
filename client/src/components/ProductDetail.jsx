@@ -37,7 +37,7 @@ const ProductDetail = () => {
     rêu: "#556B2F",
     bạc: "#C0C0C0",
   };
-
+  const { addToCart } = useContext(CartContext);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -84,7 +84,7 @@ const ProductDetail = () => {
   if (!products) {
     return <div className="p-10 text-center">Sản phẩm không tồn tại</div>;
   }
-  const { addToCart } = useContext(CartContext);
+
   const addCardToast = () => {
     if (!selectedColor) {
       toast.info("Bạn vui lòng chọn màu sắc");
@@ -109,7 +109,7 @@ const ProductDetail = () => {
     addToCart(products, selectedColor, selectedSize, qty);
     navigate("/cart");
   };
-  if (!products) return <p>⏳ Đang tải sản phẩm...</p>;
+  if (!products) return <p>Đang tải sản phẩm...</p>;
   return (
     <div>
       <AnnouncementBar />

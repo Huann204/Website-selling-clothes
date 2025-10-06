@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import {
@@ -22,59 +22,73 @@ export default function OrderManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const [orders] = useState([
-    {
-      id: "ORD001",
-      orderNumber: "ORD001",
-      customer: "Nguyễn Văn A",
-      email: "nguyenvana@email.com",
-      phone: "0123456789",
-      total: 1500000,
-      status: "pending",
-      paymentStatus: "pending",
-      date: "2024-01-15T10:30:00Z",
-      items: [
-        { name: "Áo thun nam", quantity: 2, price: 500000 },
-        { name: "Quần jeans", quantity: 1, price: 500000 },
-      ],
-    },
-    {
-      id: "ORD002",
-      orderNumber: "ORD002",
-      customer: "Trần Thị B",
-      email: "tranthib@email.com",
-      phone: "0987654321",
-      total: 800000,
-      status: "shipped",
-      paymentStatus: "paid",
-      date: "2024-01-14T14:20:00Z",
-      items: [{ name: "Váy đầm", quantity: 1, price: 800000 }],
-    },
-    {
-      id: "ORD003",
-      orderNumber: "ORD003",
-      customer: "Lê Văn C",
-      email: "levanc@email.com",
-      phone: "0369258147",
-      total: 1200000,
-      status: "delivered",
-      paymentStatus: "paid",
-      date: "2024-01-13T09:15:00Z",
-      items: [{ name: "Áo sơ mi", quantity: 2, price: 600000 }],
-    },
-    {
-      id: "ORD004",
-      orderNumber: "ORD004",
-      customer: "Phạm Thị D",
-      email: "phamthid@email.com",
-      phone: "0555123456",
-      total: 2000000,
-      status: "cancelled",
-      paymentStatus: "refunded",
-      date: "2024-01-12T16:45:00Z",
-      items: [{ name: "Set đồ bộ", quantity: 1, price: 2000000 }],
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/orders");
+        if (!res.ok) throw new Error("Lỗi fetch orders");
+        const data = await res.json();
+        setOrders(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchOrders();
+  }, []);
+  // const [orders] = useState([
+  //   {
+  //     id: "ORD001",
+  //     orderNumber: "ORD001",
+  //     customer: "Nguyễn Văn A",
+  //     email: "nguyenvana@email.com",
+  //     phone: "0123456789",
+  //     total: 1500000,
+  //     status: "pending",
+  //     paymentStatus: "pending",
+  //     date: "2024-01-15T10:30:00Z",
+  //     items: [
+  //       { name: "Áo thun nam", quantity: 2, price: 500000 },
+  //       { name: "Quần jeans", quantity: 1, price: 500000 },
+  //     ],
+  //   },
+  //   {
+  //     id: "ORD002",
+  //     orderNumber: "ORD002",
+  //     customer: "Trần Thị B",
+  //     email: "tranthib@email.com",
+  //     phone: "0987654321",
+  //     total: 800000,
+  //     status: "shipped",
+  //     paymentStatus: "paid",
+  //     date: "2024-01-14T14:20:00Z",
+  //     items: [{ name: "Váy đầm", quantity: 1, price: 800000 }],
+  //   },
+  //   {
+  //     id: "ORD003",
+  //     orderNumber: "ORD003",
+  //     customer: "Lê Văn C",
+  //     email: "levanc@email.com",
+  //     phone: "0369258147",
+  //     total: 1200000,
+  //     status: "delivered",
+  //     paymentStatus: "paid",
+  //     date: "2024-01-13T09:15:00Z",
+  //     items: [{ name: "Áo sơ mi", quantity: 2, price: 600000 }],
+  //   },
+  //   {
+  //     id: "ORD004",
+  //     orderNumber: "ORD004",
+  //     customer: "Phạm Thị D",
+  //     email: "phamthid@email.com",
+  //     phone: "0555123456",
+  //     total: 2000000,
+  //     status: "cancelled",
+  //     paymentStatus: "refunded",
+  //     date: "2024-01-12T16:45:00Z",
+  //     items: [{ name: "Set đồ bộ", quantity: 1, price: 2000000 }],
+  //   },
+  // ]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -102,7 +116,7 @@ export default function OrderManagement() {
       case "cancelled":
         return "Đã hủy";
       default:
-        return "Không xác định";
+        return "Đã xác nhận";
     }
   };
 
@@ -117,7 +131,7 @@ export default function OrderManagement() {
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-blue-100 text-blue-800 border-blue-200";
     }
   };
 
@@ -133,10 +147,9 @@ export default function OrderManagement() {
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       searchTerm === "" ||
-      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase());
-
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer?.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "" || order.status === statusFilter;
 
     return matchesSearch && matchesStatus;
@@ -296,24 +309,24 @@ export default function OrderManagement() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50">
+                  <tr key={order._id} className="hover:bg-slate-50">
                     <td className="px-6 py-4">
                       <span className="font-medium text-slate-900">
-                        #{order.orderNumber}
+                        #{order?._id}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <div className="font-medium text-slate-900">
-                          {order.customer}
+                          {order.customer?.name}
                         </div>
                         <div className="text-sm text-slate-500 flex items-center gap-1">
                           <Mail className="h-3 w-3" />
-                          {order.email}
+                          {order.customer?.email}
                         </div>
                         <div className="text-sm text-slate-500 flex items-center gap-1">
                           <Phone className="h-3 w-3" />
-                          {order.phone}
+                          {order.customer?.phone}
                         </div>
                       </div>
                     </td>
@@ -335,12 +348,14 @@ export default function OrderManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
-                      {formatDate(order.date)}
+                      {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => navigate(`/admin/orders/${order.id}`)}
+                          onClick={() =>
+                            navigate(`/admin/orderDetail/${order._id}`)
+                          }
                           className="rounded-lg border border-slate-300 p-2 text-slate-600 hover:bg-slate-100 hover:border-slate-400"
                           title="Xem chi tiết"
                         >
@@ -362,16 +377,14 @@ export default function OrderManagement() {
         <div className="lg:hidden space-y-4">
           {filteredOrders.map((order) => (
             <div
-              key={order.id}
+              key={order._id}
               className="rounded-xl border border-slate-200 bg-white p-4"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-slate-900">
-                    #{order.orderNumber}
-                  </h3>
+                  <h3 className="font-semibold text-slate-900">#{order._id}</h3>
                   <p className="text-sm text-slate-600">
-                    {formatDate(order.date)}
+                    {formatDate(order.createdAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -390,16 +403,20 @@ export default function OrderManagement() {
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-slate-400" />
                   <span className="text-sm text-slate-900">
-                    {order.customer}
+                    {order.customer?.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-slate-400" />
-                  <span className="text-sm text-slate-600">{order.email}</span>
+                  <span className="text-sm text-slate-600">
+                    {order.customer?.email}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-slate-400" />
-                  <span className="text-sm text-slate-600">{order.phone}</span>
+                  <span className="text-sm text-slate-600">
+                    {order.customer?.phone}
+                  </span>
                 </div>
               </div>
 

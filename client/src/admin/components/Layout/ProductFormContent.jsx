@@ -270,7 +270,6 @@ export default function ProductFormContent({
 
         {/* Biến thể */}
         <Section title="Biến thể – Màu & Size">
-          {console.log(variants)}
           {variants.map((v, idx) => (
             <VariantCard
               key={`variant-${idx}`}

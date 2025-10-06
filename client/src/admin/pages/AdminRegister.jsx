@@ -30,7 +30,7 @@ export default function AdminRegister() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Đăng ký thất bại");
 
-      setSuccess("🎉 Đăng ký thành công! Vui lòng đợi duyệt.");
+      setSuccess("Đăng ký thành công! Vui lòng đợi duyệt.");
       setTimeout(() => navigate("/admin/login"), 2000);
     } catch (err) {
       setError(err.message);
