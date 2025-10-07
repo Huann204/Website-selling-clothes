@@ -4,10 +4,12 @@ import Header from "../components/Header";
 import NavMenu from "../components/NavMenu";
 import Footer from "../components/Footer";
 import { Outlet } from "react-router-dom";
+import ChatWidget from "../components/ChatBot/ChatWidget";
 const DefaultLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="font-roboto">
+      <ChatWidget />
       <Header onOpenMenu={() => setMenuOpen(true)} />
       <div>
         <main className="px-[10px] lg:px-[50px] ">

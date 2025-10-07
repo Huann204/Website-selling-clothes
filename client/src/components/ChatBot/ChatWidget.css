@@ -1,0 +1,135 @@
+/* Chat Widget Custom Styles */
+@keyframes chatBounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typingDots {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.chat-bounce {
+  animation: chatBounce 2s infinite;
+}
+
+.message-slide {
+  animation: messageSlide 0.3s ease-out;
+}
+
+.typing-dot-1 {
+  animation: typingDots 1.4s infinite ease-in-out;
+  animation-delay: -0.32s;
+}
+
+.typing-dot-2 {
+  animation: typingDots 1.4s infinite ease-in-out;
+  animation-delay: -0.16s;
+}
+
+.typing-dot-3 {
+  animation: typingDots 1.4s infinite ease-in-out;
+}
+
+/* Scrollbar Styling */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 2px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* Hover effects */
+.chat-hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.chat-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Custom gradient backgrounds */
+.chat-gradient-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+}
+
+.chat-gradient-indigo {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+}
+
+/* Message bubble animations */
+.user-message {
+  animation: messageSlide 0.3s ease-out;
+  transform-origin: bottom right;
+}
+
+.bot-message {
+  animation: messageSlide 0.3s ease-out;
+  transform-origin: bottom left;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .chat-mobile-compact {
+    max-height: 70vh !important;
+    width: calc(100vw - 3rem) !important;
+    max-width: 280px !important;
+  }
+
+  /* Ensure proper spacing on very small screens */
+  @media (max-width: 375px) {
+    .chat-mobile-compact {
+      max-height: 65vh !important;
+      width: calc(100vw - 2rem) !important;
+      max-width: 260px !important;
+      bottom: 1rem !important;
+    }
+  }
+}
