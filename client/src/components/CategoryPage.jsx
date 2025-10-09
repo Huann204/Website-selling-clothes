@@ -3,6 +3,7 @@ import ProductList from "./ProductList";
 import { FaArrowLeft } from "react-icons/fa";
 import AnnouncementBar from "./AnnouncementBar";
 import { useParams } from "react-router-dom";
+import { BiStar, BiX } from "react-icons/bi";
 
 const CategoryPage = () => {
   const { slug } = useParams();

@@ -371,7 +371,7 @@ const ProductDetail = () => {
             SẢN PHẨM TƯƠNG TỰ
           </div>
           {products?.category && products?.subcategory && (
-            <ProductList
+            <NewArrivals
               category={products.category}
               subcategory={products.subcategory}
             />

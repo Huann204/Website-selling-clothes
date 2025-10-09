@@ -12,7 +12,7 @@ const HomePage = () => {
       <AnnouncementBar />
       <HeroSection />
       <GenderBanner />
-      <NewArrivals title="WHAT'S NEW" />
+      <NewArrivals title="WHAT'S NEW" sort="newest" page={1} limit={8} />
       <PolicySection />
       <ProductList title="ÁO THUN" subcategory={"ao-thun"} limit={8} />
       <ProductList title="ÁO SƠ MI" subcategory={"ao-so-mi"} limit={8} />

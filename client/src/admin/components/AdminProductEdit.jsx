@@ -240,8 +240,6 @@ export default function AdminProductEdit() {
       });
 
       if (!res.ok) throw new Error("Lỗi khi cập nhật sản phẩm!");
-
-      // ✅ Thành công → chuyển hướng
       const data = await res.json();
       console.log("Đã cập nhật sản phẩm:", data);
       alert("Cập nhật sản phẩm thành công!");
