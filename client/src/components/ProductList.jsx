@@ -13,13 +13,16 @@ const ProductList = ({ title, category, subcategory = "", page, limit }) => {
       try {
         setLoading(true);
 
-        // Build query string
-        const query = new URLSearchParams({
-          ...(category && { category }),
-          ...(subcategory && { subcategory }),
-          page,
-          limit,
-        });
+        const query = new URLSearchParams();
+
+        if (category) query.append("category", category);
+
+        if (subcategory) {
+          subcategory.forEach((s) => query.append("subcategory", s));
+        }
+        if (page) query.append("page", page);
+        if (limit) query.append("limit", limit);
+
         const res = await fetch(
           `http://localhost:5000/api/products?${query.toString()}`
         );

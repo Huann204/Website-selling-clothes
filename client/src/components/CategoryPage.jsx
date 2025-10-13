@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 const CategoryPage = () => {
   const { slug } = useParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState([]);
 
   const Category = [
     "Áo thun",
@@ -75,9 +75,14 @@ const CategoryPage = () => {
                   <input
                     type="checkbox"
                     name="category"
-                    checked={selected === slugItem}
+                    checked={selected.includes(slugItem)}
                     onChange={() =>
-                      setSelected((prev) => (prev === slugItem ? "" : slugItem))
+                      setSelected((prev) => {
+                        const filter = prev.includes(slugItem)
+                          ? prev.filter((item) => item !== slugItem)
+                          : [...prev, slugItem];
+                        return filter;
+                      })
                     }
                     className="mr-[10px] h-[15px] w-[15px]"
                   />
@@ -87,7 +92,7 @@ const CategoryPage = () => {
             })}
           </div>
           <button
-            onClick={() => setSelected("")}
+            onClick={() => setSelected([])}
             className="py-2 px-5 bg-black text-white text-center text-sm cursor-pointer"
           >
             Xóa bộ lọc
@@ -125,12 +130,15 @@ const CategoryPage = () => {
               <div key={index} className="mb-2 text-[12px] flex items-center">
                 <input
                   type="checkbox"
-                  checked={slugItem === selected}
+                  checked={selected.includes(slugItem)}
                   className="mr-2 h-[15px] w-[15px]"
                   onChange={() => {
-                    slugItem === selected
-                      ? setSelected("")
-                      : setSelected(slugItem);
+                    setSelected((prev) => {
+                      const filter = prev.includes(slugItem)
+                        ? prev.filter((item) => item !== slugItem)
+                        : [...prev, slugItem];
+                      return filter;
+                    });
                   }}
                 />
                 {item}
@@ -139,7 +147,7 @@ const CategoryPage = () => {
           })}
         </div>
         <button
-          onClick={() => setSelected("")}
+          onClick={() => setSelected([])}
           className="py-2 px-5 bg-black text-white text-sm w-full"
         >
           Xóa bộ lọc

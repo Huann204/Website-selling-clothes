@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import {
@@ -16,6 +16,7 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function OrderManagement() {
   const navigate = useNavigate();
@@ -23,10 +24,19 @@ export default function OrderManagement() {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [orders, setOrders] = useState([]);
+  const { admin } = useContext(AuthContext);
+  const token = admin?.token;
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/orders");
+        const res = await fetch("http://localhost:5000/api/admin/orders", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         if (!res.ok) throw new Error("Lỗi fetch orders");
         const data = await res.json();
         setOrders(data);
@@ -35,7 +45,7 @@ export default function OrderManagement() {
       }
     }
     fetchOrders();
-  }, []);
+  }, [token]);
   // const [orders] = useState([
   //   {
   //     id: "ORD001",
