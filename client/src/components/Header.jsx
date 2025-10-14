@@ -20,6 +20,7 @@ const Header = ({ onOpenMenu }) => {
     { name: "Trang chủ", to: "/" },
     { name: "Nam", to: "/category/for-him" },
     { name: "Nữ", to: "/category/for-her" },
+    { name: "Tra cứu đơn hàng", to: "/tracking" },
     { name: "Liên Hệ", to: "/contact" },
   ];
 
