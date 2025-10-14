@@ -7,6 +7,12 @@ import { BsTruck } from "react-icons/bs";
 import { CartContext } from "../context/CartContext";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { calcGHNFee } from "../utils/ghn";
+import {
+  getGHNProvinces,
+  getGHNDistricts,
+  getGHNWards,
+} from "../utils/ghn-location";
 const CheckoutPage = () => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -14,6 +20,7 @@ const CheckoutPage = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
+  const [shippingFee, setShippingFee] = useState(0); // State để lưu phí ship
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     fullName: "",
@@ -24,28 +31,25 @@ const CheckoutPage = () => {
   });
   const navigate = useNavigate();
   useEffect(() => {
-    async function getProvinces() {
-      const url = "https://provinces.open-api.vn/api/p/";
+    // Sử dụng GHN API thay vì provinces.open-api.vn
+    async function fetchProvinces() {
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-        const cityInfo = await response.json();
-        return setProvinces(cityInfo);
+        const data = await getGHNProvinces();
+        setProvinces(data);
       } catch (error) {
-        console.error("Error:", error.message);
+        console.error("Error fetching provinces:", error);
+        setErrors((prev) => ({
+          ...prev,
+          provinces: "Không thể tải danh sách tỉnh/thành phố",
+        }));
       }
     }
-    getProvinces();
+    fetchProvinces();
   }, []);
-  const getDistricts = async (code) => {
-    const url = `https://provinces.open-api.vn/api/p/${code}?depth=2`;
+  const getDistricts = async (provinceId) => {
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
-      setDistricts(data.districts || []);
+      const data = await getGHNDistricts(provinceId);
+      setDistricts(data);
     } catch (err) {
       console.error("Error fetching districts:", err);
       setErrors((prev) => ({
@@ -55,13 +59,10 @@ const CheckoutPage = () => {
     }
   };
 
-  const getWards = async (code) => {
-    const url = `https://provinces.open-api.vn/api/d/${code}?depth=2`;
+  const getWards = async (districtId) => {
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
-      setWards(data.wards || []);
+      const data = await getGHNWards(districtId);
+      setWards(data);
     } catch (err) {
       console.error("Error fetching wards:", err);
       setErrors((prev) => ({
@@ -70,6 +71,23 @@ const CheckoutPage = () => {
       }));
     }
   };
+
+  // Tính phí ship khi chọn đủ địa chỉ
+  useEffect(() => {
+    async function calculateShipping() {
+      if (selectedDistrict && selectedWard) {
+        try {
+          const fee = await calcGHNFee(selectedDistrict, selectedWard, 1000);
+          setShippingFee(fee);
+        } catch (error) {
+          console.error("Error calculating shipping fee:", error);
+          setShippingFee(0); // Fallback to default
+        }
+      }
+    }
+    calculateShipping();
+  }, [selectedDistrict, selectedWard]);
+
   // Validation functions
   const validateForm = () => {
     const newErrors = {};
@@ -136,23 +154,25 @@ const CheckoutPage = () => {
 
     try {
       const selectedProvinceObj = provinces.find(
-        (p) => p.code == selectedProvince
+        (p) => p.ProvinceID == selectedProvince
       );
       const selectedDistrictObj = districts.find(
-        (d) => d.code == selectedDistrict
+        (d) => d.DistrictID == selectedDistrict
       );
-      const selectedWardObj = wards.find((w) => w.code == selectedWard);
-
+      const selectedWardObj = wards.find((w) => w.WardCode == selectedWard);
       const orderData = {
         customer: {
           name: formData.fullName,
           email: formData.email,
           phone: formData.phone,
           address: {
-            province: selectedProvinceObj?.name || "",
-            district: selectedDistrictObj?.name || "",
-            ward: selectedWardObj?.name || "",
+            province: selectedProvinceObj?.ProvinceName || "",
+            district: selectedDistrictObj?.DistrictName || "",
+            ward: selectedWardObj?.WardName || "",
             street: formData.address,
+            // Thêm districtId và wardCode cho GHN
+            districtId: selectedDistrict,
+            wardCode: selectedWard,
           },
         },
         items: cart.map((item) => ({
@@ -167,21 +187,18 @@ const CheckoutPage = () => {
         })),
         payment: {
           method: formData.paymentMethod, // "card", "shoppeepay", "cod"
-          status: formData.paymentMethod === "cod" ? "pending" : "pending",
+          status: formData.paymentMethod === "cod" ? "pending" : "paid",
         },
         shipping: {
-          fee: 20000,
+          fee: shippingFee,
           status: "preparing",
         },
-        discount: 0, // TODO: implement discount logic
+        discount: 0,
         total: totalPrice,
-        grandTotal: totalPrice + 20000, // total + shipping - discount
+        grandTotal: totalPrice + shippingFee,
         status: "pending",
       };
 
-      console.log("Order data to be sent:", orderData);
-
-      // TODO: Send to your API endpoint
       const response = await fetch("http://localhost:5000/api/admin/orders", {
         method: "POST",
         headers: {
@@ -303,13 +320,13 @@ const CheckoutPage = () => {
                       }`}
                       value={selectedProvince}
                       onChange={(e) => {
-                        const code = e.target.value;
-                        setSelectedProvince(code);
+                        const id = e.target.value;
+                        setSelectedProvince(id);
                         setSelectedDistrict("");
                         setSelectedWard("");
                         setDistricts([]);
                         setWards([]);
-                        if (code) getDistricts(code);
+                        if (id) getDistricts(id);
                         if (errors.province) {
                           setErrors((prev) => ({ ...prev, province: "" }));
                         }
@@ -317,9 +334,12 @@ const CheckoutPage = () => {
                       aria-label="Tỉnh/Thành phố"
                     >
                       <option value="">Chọn địa chỉ</option>
-                      {provinces?.map((city) => (
-                        <option key={city.code} value={city.code}>
-                          {city.name}
+                      {provinces?.map((province) => (
+                        <option
+                          key={province.ProvinceID}
+                          value={province.ProvinceID}
+                        >
+                          {province.ProvinceName}
                         </option>
                       ))}
                     </select>
@@ -329,11 +349,11 @@ const CheckoutPage = () => {
                       }`}
                       value={selectedDistrict}
                       onChange={(e) => {
-                        const code = e.target.value;
-                        setSelectedDistrict(code);
+                        const id = e.target.value;
+                        setSelectedDistrict(id);
                         setSelectedWard("");
                         setWards([]);
-                        if (code) getWards(code);
+                        if (id) getWards(id);
                         if (errors.district) {
                           setErrors((prev) => ({ ...prev, district: "" }));
                         }
@@ -342,9 +362,12 @@ const CheckoutPage = () => {
                     >
                       <option value="">*Quận/Huyện</option>
                       {districts &&
-                        districts?.map((item) => (
-                          <option key={item.code} value={item.code}>
-                            {item.name}
+                        districts?.map((district) => (
+                          <option
+                            key={district.DistrictID}
+                            value={district.DistrictID}
+                          >
+                            {district.DistrictName}
                           </option>
                         ))}
                     </select>
@@ -363,9 +386,9 @@ const CheckoutPage = () => {
                     >
                       <option value="">*Phường Xã</option>
                       {wards &&
-                        wards?.map((item) => (
-                          <option key={item.code} value={item.code}>
-                            {item.name}
+                        wards?.map((ward) => (
+                          <option key={ward.WardCode} value={ward.WardCode}>
+                            {ward.WardName}
                           </option>
                         ))}
                     </select>
@@ -556,11 +579,14 @@ const CheckoutPage = () => {
                     <span>- 0 VNĐ</span>
                   </div>
                   <div className="flex justify-between mb-5">
-                    <span>Phí ship</span> <span>20,000 VNĐ</span>
+                    <span>Phí ship</span>{" "}
+                    <span>{shippingFee.toLocaleString()} VNĐ</span>
                   </div>
                   <div className="flex justify-between mb-5 font-semibold">
                     <span>Thành tiền</span>{" "}
-                    <span>{(totalPrice + 20000).toLocaleString()} VNĐ</span>
+                    <span>
+                      {(totalPrice + shippingFee).toLocaleString()} VNĐ
+                    </span>
                   </div>
                   <button
                     type="submit"
