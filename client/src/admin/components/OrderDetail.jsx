@@ -17,6 +17,7 @@ import {
   Download,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import { createGHNOrder } from "../../utils/ghn";
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -25,11 +26,9 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  // Mock data - thay thế bằng API call thực tế
   useEffect(() => {
     const fetchOrder = async () => {
       setLoading(true);
-      // Simulate API call
       try {
         const response = await fetch(
           `http://localhost:5000/api/admin/orders/${id}`
@@ -43,55 +42,6 @@ export default function OrderDetail() {
       } catch (error) {
         console.error("Error fetching order:", error);
       }
-      // setTimeout(() => {
-      //   setOrder({
-      //     id: id || "ORD001",
-      //     orderNumber: "ORD001",
-      //     customer: {
-      //       name: "Nguyễn Văn A",
-      //       email: "nguyenvana@email.com",
-      //       phone: "0123456789",
-      //       address: "123 Đường ABC, Quận 1, TP.HCM",
-      //     },
-      //     total: 1500000,
-      //     subtotal: 1500000,
-      //     shipping: 0,
-      //     discount: 0,
-      //     status: "pending",
-      //     paymentMethod: "COD",
-      //     paymentStatus: "pending",
-      //     date: "2024-01-15T10:30:00Z",
-      //     shippingDate: null,
-      //     deliveryDate: null,
-      //     notes: "Giao hàng vào buổi chiều",
-      //     items: [
-      //       {
-      //         id: 1,
-      //         name: "Áo thun nam cao cấp",
-      //         variant: "Trắng - Size L",
-      //         price: 500000,
-      //         quantity: 2,
-      //         image: "/api/placeholder/100/100",
-      //         total: 1000000,
-      //       },
-      //       {
-      //         id: 2,
-      //         name: "Quần jeans slim fit",
-      //         variant: "Xanh - Size 32",
-      //         price: 500000,
-      //         quantity: 1,
-      //         image: "/api/placeholder/100/100",
-      //         total: 500000,
-      //       },
-      //     ],
-      //     shipping: {
-      //       method: "Giao hàng tiêu chuẩn",
-      //       trackingNumber: "GH123456789",
-      //       estimatedDelivery: "2024-01-20",
-      //     },
-      //   });
-      //   setLoading(false);
-      // }, 1000);
     };
 
     fetchOrder();
@@ -162,27 +112,94 @@ export default function OrderDetail() {
     });
   };
 
-  const handleStatusUpdate = (newStatus) => {
-    // API call để cập nhật trạng thái
-    fetch(`http://localhost:5000/api/admin/orders/${order._id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ status: newStatus }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to update status");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Status updated successfully:", data);
-        setOrder((prev) => ({ ...prev, status: newStatus }));
-      })
-      .catch((error) => {
-        console.error("Error updating status:", error);
-      });
+  const handleStatusUpdate = async (newStatus) => {
+    try {
+      // Nếu chuyển sang trạng thái "confirmed", tạo đơn hàng trên GHN
+      let ghnOrderCode = null;
+      if (newStatus === "confirmed") {
+        const districtId = order.customer?.address?.districtId;
+        const wardCode = order.customer?.address?.wardCode;
+
+        if (!districtId || !wardCode) {
+          alert(
+            "Không thể tạo đơn GHN: Thiếu thông tin districtId hoặc wardCode. Đơn hàng này có thể được tạo trước khi tích hợp GHN."
+          );
+        } else {
+          const ghnData = {
+            toName: order.customer?.name || "",
+            toPhone: order.customer?.phone || "",
+            toAddress: `${order.customer?.address?.street}, ${order.customer?.address?.ward}, ${order.customer?.address?.district}, ${order.customer?.address?.province}`,
+            toWardCode: wardCode,
+            toDistrictId: districtId,
+            codAmount: order.payment?.method === "cod" ? order.grandTotal : 0,
+            weight: 1000,
+            length: 20,
+            width: 15,
+            height: 10,
+            note: order.notes || "Giao hàng cẩn thận",
+            orderCode: order._id,
+            items: order.items?.map((item) => ({
+              name: item.title || "Sản phẩm",
+              code: Number(item.productId),
+              quantity: item.qty || 1,
+              price: item.price || 0,
+              length: 20,
+              width: 15,
+              height: 10,
+              weight: 200,
+            })),
+          };
+
+          const ghnResponse = await createGHNOrder(ghnData);
+          ghnOrderCode = ghnResponse.order_code;
+        }
+      }
+
+      const updateData = {
+        status: newStatus,
+        ...(ghnOrderCode && {
+          shipping: {
+            ...order.shipping,
+            trackingNumber: ghnOrderCode, // Lưu mã vận đơn GHN
+          },
+        }),
+      };
+
+      const res = await fetch(
+        `http://localhost:5000/api/admin/orders/${order._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to update status");
+      await res.json();
+
+      setOrder((prev) => ({
+        ...prev,
+        status: newStatus,
+        ...(ghnOrderCode && {
+          shipping: {
+            ...prev.shipping,
+            trackingNumber: ghnOrderCode,
+          },
+        }),
+      }));
+
+      alert(
+        `Đã cập nhật trạng thái thành công!${
+          ghnOrderCode ? `\nMã vận đơn GHN: ${ghnOrderCode}` : ""
+        }`
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert(`Lỗi: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -443,25 +460,20 @@ export default function OrderDetail() {
                     <div className="flex justify-between">
                       <span className="text-slate-600">Phương thức:</span>
                       <span className="text-slate-900">
-                        {/* {order.shipping.method} */}
                         Giao hàng tiêu chuẩn
                       </span>
                     </div>
-                    {order.shipping.trackingNumber && (
+                    {order.shipping?.trackingNumber && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Mã vận đơn:</span>
                         <span className="text-slate-900 font-mono">
-                          {/* {order.shipping.trackingNumber} */}
-                          GH123456789
+                          {order.shipping.trackingNumber}
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between">
                       <span className="text-slate-600">Dự kiến giao:</span>
-                      <span className="text-slate-900">
-                        {/* {order.shipping.estimatedDelivery} */}
-                        20/01/2024
-                      </span>
+                      <span className="text-slate-900">3-5 ngày</span>
                     </div>
                   </div>
                 </div>
