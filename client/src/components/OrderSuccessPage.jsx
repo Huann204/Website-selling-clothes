@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AnnouncementBar from "./AnnouncementBar";
 import { Link, useParams } from "react-router-dom";
-
+import API_URL from "../config";
 const OrderSuccessPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { orderId } = useParams();
@@ -23,9 +23,7 @@ const OrderSuccessPage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/admin/orders/${orderId}`
-        );
+        const response = await fetch(`${API_URL}/api/admin/orders/${orderId}`);
         if (!response.ok) throw new Error("Failed to fetch order details");
         const data = await response.json();
 

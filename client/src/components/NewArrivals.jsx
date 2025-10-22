@@ -4,6 +4,7 @@ import "@splidejs/react-splide/css";
 import { FiShoppingCart } from "react-icons/fi";
 import Loading from "../shared/Loading";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../config";
 
 const NewArrivals = ({
   title,
@@ -30,9 +31,7 @@ const NewArrivals = ({
           page,
           limit,
         });
-        const res = await fetch(
-          `http://localhost:5000/api/products?${query.toString()}`
-        );
+        const res = await fetch(`${API_URL}/api/products?${query.toString()}`);
         if (!res.ok) throw new Error("Lỗi fetch products");
 
         const data = await res.json();

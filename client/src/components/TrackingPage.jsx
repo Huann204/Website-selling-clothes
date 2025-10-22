@@ -4,6 +4,7 @@ import { MdLocalShipping, MdCancel } from "react-icons/md";
 import { FaBoxOpen, FaPhone } from "react-icons/fa";
 import { BsReceipt } from "react-icons/bs";
 import AnnouncementBar from "./AnnouncementBar";
+import API_URL from "../config";
 
 const TrackingPage = () => {
   const [searchType, setSearchType] = useState("orderId");
@@ -27,8 +28,8 @@ const TrackingPage = () => {
     try {
       const endpoint =
         searchType === "orderId"
-          ? `http://localhost:5000/api/admin/orders/${searchValue}`
-          : `http://localhost:5000/api/admin/orders/phone/${searchValue}`;
+          ? `${API_URL}/api/admin/orders/${searchValue}`
+          : `${API_URL}/api/admin/orders/phone/${searchValue}`;
 
       const res = await fetch(endpoint);
       const data = await res.json();

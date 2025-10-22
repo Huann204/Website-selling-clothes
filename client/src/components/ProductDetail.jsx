@@ -7,6 +7,8 @@ import NewArrivals from "./NewArrivals";
 import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import sizeHim from "../assets/images/Size/sizehim.webp";
+import API_URL from "../config";
+
 const ProductDetail = () => {
   const [products, setProducts] = useState({});
   const { slugId } = useParams();
@@ -42,9 +44,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const id = slugId.split("-").pop(); // lấy id từ slug
-        const response = await fetch(
-          `https://website-selling-clothes-be-production.up.railway.app/api/products/${id}`
-        );
+        const response = await fetch(`${API_URL}/api/products/${id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -13,6 +13,7 @@ import {
   getGHNDistricts,
   getGHNWards,
 } from "../utils/ghn-location";
+import API_URL from "../config";
 const CheckoutPage = () => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -31,7 +32,6 @@ const CheckoutPage = () => {
   });
   const navigate = useNavigate();
   useEffect(() => {
-    // Sử dụng GHN API thay vì provinces.open-api.vn
     async function fetchProvinces() {
       try {
         const data = await getGHNProvinces();
@@ -199,7 +199,7 @@ const CheckoutPage = () => {
         status: "pending",
       };
 
-      const response = await fetch("http://localhost:5000/api/admin/orders", {
+      const response = await fetch(`${API_URL}/api/admin/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

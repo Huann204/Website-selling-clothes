@@ -3,6 +3,7 @@ import { FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Loading from "../shared/Loading";
 import ProductCard from "./ProductCard";
+import API_URL from "../config";
 
 const ProductList = ({ title, category, subcategory = "", page, limit }) => {
   const [products, setProducts] = useState([]);
@@ -23,9 +24,7 @@ const ProductList = ({ title, category, subcategory = "", page, limit }) => {
         if (page) query.append("page", page);
         if (limit) query.append("limit", limit);
 
-        const res = await fetch(
-          `http://localhost:5000/api/products?${query.toString()}`
-        );
+        const res = await fetch(`${API_URL}/api/products?${query.toString()}`);
         if (!res.ok) throw new Error("Lỗi fetch products");
 
         const data = await res.json();

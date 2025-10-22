@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import AnnouncementBar from "./AnnouncementBar";
 import Loading from "../shared/Loading";
 import ProductCard from "./ProductCard";
+import API_URL from "../config";
 
 const SearchResultsPage = () => {
   const location = useLocation();
@@ -20,11 +21,7 @@ const SearchResultsPage = () => {
     });
 
     setLoading(true);
-    fetch(
-      `http://localhost:5000/api/products/search?q=${encodeURIComponent(
-        keyword
-      )}`
-    )
+    fetch(`${API_URL}/api/products/search?q=${encodeURIComponent(keyword)}`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .finally(() => setLoading(false));
