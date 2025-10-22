@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import { X, Send, MessageCircle, Minimize2 } from "lucide-react";
 import "./ChatWidget.css";
-
+import API_URL from "../../config";
 export default function ChatWindow({ onClose }) {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem("chatMessages");
@@ -39,7 +39,7 @@ export default function ChatWindow({ onClose }) {
     setIsTyping(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/chatbot", {
+      const res = await fetch(`${API_URL}/api/chatbot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...messages, userMsg] }),
