@@ -5,7 +5,7 @@ export default function ConfirmModal({ open, onClose, onConfirm, message }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-xl p-6 w-[350px]">
         <h2 className="text-lg font-semibold mb-4">Xác nhận xoá</h2>
         <p className="text-slate-600 mb-6">{message}</p>
