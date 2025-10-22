@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import { CartProvider } from "../context/CartContext";
 import DefaultLayout from "../layouts/DefaultLayout";
 import AdminProductsManagement from "../admin/components/AdminProductsManagement";
-import AdminSidebar from "../admin/components/AdminSidebar";
 import AdminProductCreate from "../admin/components/AdminProductCreate";
 // import Test from "../admin/components/test";
 import AdminProductEdit from "../admin/components/AdminProductEdit";
@@ -12,6 +11,12 @@ import OrderManagement from "../admin/components/OrderManagement";
 import OrderDetail from "../admin/components/OrderDetail";
 import AdminLogin from "../admin/pages/AdminLogin";
 import AdminRegister from "../admin/pages/AdminRegister";
+import Dashboard from "../admin/pages/Dashboard";
+import Categories from "../admin/pages/Categories";
+import Customers from "../admin/pages/Customers";
+import Promotions from "../admin/pages/Promotions";
+import Analytics from "../admin/pages/Analytics";
+import Settings from "../admin/pages/Settings";
 import AdminWrapper from "../admin/components/Layout/AdminWrapper";
 import ProtectedRoute from "../admin/ProtectedRoute/ProtectedRoute";
 import ManageAdmins from "../admin/components/ManageAdmins";
@@ -72,7 +77,7 @@ const AppRoutes = () => {
               index
               element={
                 <ProtectedRoute>
-                  <AdminSidebar />
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />
@@ -121,6 +126,46 @@ const AppRoutes = () => {
               element={
                 <ProtectedRoute requiredRole="superadmin">
                   <ManageAdmins />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="categories"
+              element={
+                <ProtectedRoute>
+                  <Categories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="customers"
+              element={
+                <ProtectedRoute>
+                  <Customers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="promotions"
+              element={
+                <ProtectedRoute>
+                  <Promotions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
