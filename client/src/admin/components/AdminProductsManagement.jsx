@@ -21,6 +21,7 @@ import { AdminLayout } from "./Layout/LayoutAdmin";
 import { Link } from "react-router-dom";
 import ConfirmModal from "./shared/ConfirmModal";
 import { AuthContext } from "../context/AuthContext";
+import API_URL from "../../config";
 
 export default function AdminProductsManagement() {
   // const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function AdminProductsManagement() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products");
+        const response = await fetch(`${API_URL}/api/products`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -84,6 +85,7 @@ export default function AdminProductsManagement() {
         title="Quản lý sản phẩm"
         activeLabel="Sản phẩm"
         backTo="/admin"
+        showBackButton={false}
         showSaveButton={false}
       >
         <div className="text-center py-12">
@@ -100,7 +102,7 @@ export default function AdminProductsManagement() {
   const handleConfirmDelete = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/products/${productToDelete._id}`,
+        `${API_URL}/api/products/${productToDelete._id}`,
         {
           method: "DELETE",
           headers,
@@ -168,6 +170,7 @@ export default function AdminProductsManagement() {
       title="Quản lý sản phẩm"
       activeLabel="Sản phẩm"
       backTo="/admin"
+      showBackButton={false}
       showSaveButton={false}
       customActions={
         <div className="flex items-center gap-2">

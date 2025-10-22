@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { createGHNOrder } from "../../utils/ghn";
+import API_URL from "../../config";
 
 export default function OrderDetail() {
   const { id } = useParams();

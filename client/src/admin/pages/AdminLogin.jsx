@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react"; // icon nhẹ nhàng
+import API_URL from "../../config";
 
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/auth/login", {
+      const res = await fetch(`${API_URL}/api/admin/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

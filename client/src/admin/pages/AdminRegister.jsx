@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
+import API_URL from "../../config";
 
 export default function AdminRegister() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function AdminRegister() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/admin/auth/register", {
+      const res = await fetch(`${API_URL}/api/admin/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),

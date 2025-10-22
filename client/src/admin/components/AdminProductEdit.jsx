@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProductFormLayout, ProductFormContent } from "./Layout/LayoutAdmin";
 import { AuthContext } from "../context/AuthContext";
+import API_URL from "../../config";
 
 export default function AdminProductEdit() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function AdminProductEdit() {
     const fetchProduct = async () => {
       try {
         setLoadingData(true);
-        const res = await fetch(`http://localhost:5000/api/products/${id}`);
+        const res = await fetch(`${API_URL}/api/products/${id}`);
         if (!res.ok) throw new Error("Không thể tải thông tin sản phẩm");
 
         const product = await res.json();
@@ -232,7 +233,7 @@ export default function AdminProductEdit() {
       };
 
       // Gửi PUT request để cập nhật
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(`${API_URL}/api/products/${id}`, {
         method: "PUT",
         headers,
         // headers: { "Content-Type": "application/json" },

@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductFormLayout, ProductFormContent } from "./Layout/LayoutAdmin";
 import { AuthContext } from "../context/AuthContext";
+import API_URL from "../../config";
 
 export default function AdminProductCreate() {
   const navigate = useNavigate();
@@ -164,7 +165,7 @@ export default function AdminProductCreate() {
         variants,
       };
 
-      const res = await fetch("http://localhost:5000/api/products", {
+      const res = await fetch(`${API_URL}/api/products`, {
         method: "POST",
         headers,
         body: JSON.stringify(productData),
