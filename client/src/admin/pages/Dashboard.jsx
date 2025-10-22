@@ -171,6 +171,7 @@ const Dashboard = () => {
     );
   };
 
+  // eslint-disable-next-line no-unused-vars
   const StatCard = ({ title, value, icon: Icon, growth, color }) => {
     const isPositive = growth >= 0;
     const GrowthIcon = isPositive ? ArrowUpRight : ArrowDownRight;
