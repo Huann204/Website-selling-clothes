@@ -2,12 +2,11 @@ import React, { useState, useEffect, useMemo, useContext } from "react";
 import AdminLayout from "./Layout/AdminLayout";
 import { AuthContext } from "../context/AuthContext";
 import { Plus, Pencil, Trash2, RefreshCw, Shield } from "lucide-react";
+import API_URL from "../../config";
 
 export default function ManageAdmins() {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-
-  const API_BASE = "http://localhost:5000/api";
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +37,7 @@ export default function ManageAdmins() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/admins`, { headers });
+      const res = await fetch(`${API_URL}/api/admin/admins`, { headers });
       const data = await res.json();
       if (!res.ok)
         throw new Error(
@@ -90,7 +89,7 @@ export default function ManageAdmins() {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE}/admin/admins`, {
+      const res = await fetch(`${API_URL}/api/admin/admins`, {
         method: "POST",
         headers,
         body: JSON.stringify(form),
@@ -113,16 +112,19 @@ export default function ManageAdmins() {
     setSaving(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/admins/${currentEdit._id}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({
-          name: form.name,
-          role: form.role,
-          email: form.email,
-          password: form.password || undefined,
-        }),
-      });
+      const res = await fetch(
+        `${API_URL}/api/admin/admins/${currentEdit._id}`,
+        {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify({
+            name: form.name,
+            role: form.role,
+            email: form.email,
+            password: form.password || undefined,
+          }),
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Cập nhật thất bại");
       setIsEditOpen(false);
@@ -139,7 +141,7 @@ export default function ManageAdmins() {
     if (!window.confirm(`Xoá quản trị viên "${user.email}"?`)) return;
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/admins/${user._id}`, {
+      const res = await fetch(`${API_URL}/api/admin/admins/${user._id}`, {
         method: "DELETE",
         headers,
       });
@@ -154,7 +156,7 @@ export default function ManageAdmins() {
   async function handleToggleActive(user) {
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/admins/${user._id}`, {
+      const res = await fetch(`${API_URL}/api/admin/admins/${user._id}`, {
         method: "PATCH",
         headers,
         body: JSON.stringify({ active: !user.active }),

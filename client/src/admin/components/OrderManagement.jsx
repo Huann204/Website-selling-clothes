@@ -17,6 +17,7 @@ import {
   Mail,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import API_URL from "../../config";
 
 export default function OrderManagement() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function OrderManagement() {
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/orders", {
+        const res = await fetch(`${API_URL}/api/admin/orders`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -439,7 +440,7 @@ export default function OrderManagement() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    onClick={() => navigate(`/admin/orderDetail/${order._id}`)}
                     className="rounded-lg border border-slate-300 p-2 text-slate-600 hover:bg-slate-100"
                   >
                     <Eye className="h-4 w-4" />
