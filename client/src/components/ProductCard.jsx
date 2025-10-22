@@ -1,8 +1,10 @@
 import React from "react";
 import { FiShoppingCart } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+
   const formatVND = (n) =>
     typeof n === "number"
       ? n.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
@@ -11,12 +13,13 @@ const ProductCard = ({ product }) => {
   const hover = product?.hoverImage?.src;
   const hasSale =
     typeof product?.salePrice === "number" && product.salePrice < product.price;
+
   return (
     <>
       <div className="px-8 mb-14" key={product._id}>
-        <Link
-          to={`/detail/${product.slug}-${product._id}`}
-          className="group relative w-full overflow-hidden"
+        <div
+          onClick={() => navigate(`/detail/${product.slug}-${product._id}`)}
+          className="group relative w-full overflow-hidden cursor-pointer"
         >
           <img
             src={thumb}
@@ -31,7 +34,7 @@ const ProductCard = ({ product }) => {
             className="absolute inset-0 w-full h-full object-cover transform scale-0 opacity-0 transition-all duration-700 ease-in-out group-hover:scale-100 group-hover:opacity-100"
             alt={product?.hoverImage?.alt || product.title}
           />
-        </Link>
+        </div>
 
         <div className="text-center">
           <h3 className="mt-4 text-sm font-normal mb-[10px]">
@@ -50,30 +53,31 @@ const ProductCard = ({ product }) => {
             </span>
           </p>
         </div>
-        <Link to={`/detail/${product.slug}-${product._id}`}>
-          <div className="w-full hidden lg:flex justify-center ">
-            <button className="relative group min-w-[140px] overflow-hidden">
-              <span
-                className="block px-4 py-2 bg-black text-white font-semibold text-[13px]
-                         transition-all duration-300 ease-out
-                         group-hover:translate-x-full group-hover:opacity-0"
-              >
-                CHỌN MUA
-              </span>
+        <div className="w-full hidden lg:flex justify-center ">
+          <button
+            className="relative group min-w-[140px] overflow-hidden"
+            onClick={() => navigate(`/detail/${product.slug}-${product._id}`)}
+          >
+            <span
+              className="block px-4 py-2 bg-black text-white font-semibold text-[13px]
+                       transition-all duration-300 ease-out
+                       group-hover:translate-x-full group-hover:opacity-0"
+            >
+              CHỌN MUA
+            </span>
 
-              <span
-                className="pointer-events-none absolute inset-0
-                         flex items-center justify-center
-                         px-4 py-2 bg-black text-white font-semibold
-                         transition-all duration-300 ease-out
-                         -translate-x-full opacity-0
-                         group-hover:translate-x-0 group-hover:opacity-100"
-              >
-                <FiShoppingCart size={20} />
-              </span>
-            </button>
-          </div>
-        </Link>
+            <span
+              className="pointer-events-none absolute inset-0
+                       flex items-center justify-center
+                       px-4 py-2 bg-black text-white font-semibold
+                       transition-all duration-300 ease-out
+                       -translate-x-full opacity-0
+                       group-hover:translate-x-0 group-hover:opacity-100"
+            >
+              <FiShoppingCart size={20} />
+            </span>
+          </button>
+        </div>
       </div>
     </>
   );
