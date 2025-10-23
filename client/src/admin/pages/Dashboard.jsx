@@ -35,6 +35,7 @@ import {
 } from "recharts";
 import API_URL from "../../config";
 import { Link } from "react-router-dom";
+import LoadingAdmin from "../components/shared/LoadingAdmin";
 
 const Dashboard = () => {
   const [topProducts, setTopProducts] = useState([]);
@@ -43,6 +44,7 @@ const Dashboard = () => {
   const [categoryData, setCategoryData] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [stats, setStats] = useState({});
+
   useEffect(() => {
     const fetchTopProducts = async () => {
       const res = await fetch(`${API_URL}/api/stats/sold-products?limit=5`);
@@ -116,6 +118,17 @@ const Dashboard = () => {
     };
     fetchAllStats();
   }, []);
+  if (!stats.totalRevenue) {
+    return (
+      <AdminLayout
+        title="Tổng quan"
+        activeLabel="Tổng quan"
+        showBackButton={false}
+      >
+        <LoadingAdmin />
+      </AdminLayout>
+    );
+  }
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {

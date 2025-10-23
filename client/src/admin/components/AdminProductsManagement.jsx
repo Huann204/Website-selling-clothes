@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import ConfirmModal from "./shared/ConfirmModal";
 import { AuthContext } from "../context/AuthContext";
 import API_URL from "../../config";
+import LoadingAdmin from "./shared/LoadingAdmin";
 
 export default function AdminProductsManagement() {
   // const navigate = useNavigate();
@@ -67,14 +68,10 @@ export default function AdminProductsManagement() {
         title="Quản lý sản phẩm"
         activeLabel="Sản phẩm"
         backTo="/admin"
+        showBackButton={false}
         showSaveButton={false}
       >
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 mx-auto mb-4"></div>
-            <p className="text-slate-600">Đang tải danh sách sản phẩm...</p>
-          </div>
-        </div>
+        <LoadingAdmin />
       </AdminLayout>
     );
   }

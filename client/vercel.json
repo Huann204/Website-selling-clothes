@@ -10,7 +10,7 @@
   ],
   "routes": [
     {
-      "src": "/(.*)\\.(js|css|png|jpg|svg|gif|woff2?)",
+      "src": "/(.*)\\.(js|css|png|jpg|jpeg|svg|gif|webp|woff2?|ico)",
       "dest": "/$1.$2"
     },
     {

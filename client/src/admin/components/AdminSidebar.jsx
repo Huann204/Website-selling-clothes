@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
 export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
   const mainNav = [
     { label: "Tổng quan", icon: LayoutDashboard, to: "/admin" },
@@ -44,7 +43,11 @@ export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-5 flex-shrink-0">
         <div className="relative">
-          <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-sky-400 via-cyan-400 to-indigo-500 shadow-[0_0_30px_-12px_rgba(14,165,233,0.6)]" />
+          <img
+            className="h-10 w-10 rounded-lg"
+            src="https://cdn-icons-png.freepik.com/512/9703/9703596.png"
+            alt=""
+          />
           <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
         </div>
         <div className="leading-tight">

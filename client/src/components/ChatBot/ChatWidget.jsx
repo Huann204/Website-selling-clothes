@@ -29,7 +29,7 @@ export default function ChatWidget() {
           {/* Tooltip */}
           <div className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none transform translate-y-2 group-hover:translate-y-0">
             <div className="bg-gray-900 text-white text-sm px-4 py-2 rounded-xl whitespace-nowrap shadow-xl relative">
-              <span className="font-medium">💬 Cần hỗ trợ? Chat ngay!</span>
+              <span className="font-medium">Cần hỗ trợ? Chat ngay!</span>
               <div className="absolute top-full right-6 w-0 h-0 border-l-4 border-r-4 border-t-6 border-transparent border-t-gray-900"></div>
             </div>
           </div>

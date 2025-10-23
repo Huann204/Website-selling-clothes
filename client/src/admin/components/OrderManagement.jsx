@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import API_URL from "../../config";
-
+import LoadingAdmin from "./shared/LoadingAdmin";
 export default function OrderManagement() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,60 +47,19 @@ export default function OrderManagement() {
     }
     fetchOrders();
   }, [token]);
-  // const [orders] = useState([
-  //   {
-  //     id: "ORD001",
-  //     orderNumber: "ORD001",
-  //     customer: "Nguyễn Văn A",
-  //     email: "nguyenvana@email.com",
-  //     phone: "0123456789",
-  //     total: 1500000,
-  //     status: "pending",
-  //     paymentStatus: "pending",
-  //     date: "2024-01-15T10:30:00Z",
-  //     items: [
-  //       { name: "Áo thun nam", quantity: 2, price: 500000 },
-  //       { name: "Quần jeans", quantity: 1, price: 500000 },
-  //     ],
-  //   },
-  //   {
-  //     id: "ORD002",
-  //     orderNumber: "ORD002",
-  //     customer: "Trần Thị B",
-  //     email: "tranthib@email.com",
-  //     phone: "0987654321",
-  //     total: 800000,
-  //     status: "shipped",
-  //     paymentStatus: "paid",
-  //     date: "2024-01-14T14:20:00Z",
-  //     items: [{ name: "Váy đầm", quantity: 1, price: 800000 }],
-  //   },
-  //   {
-  //     id: "ORD003",
-  //     orderNumber: "ORD003",
-  //     customer: "Lê Văn C",
-  //     email: "levanc@email.com",
-  //     phone: "0369258147",
-  //     total: 1200000,
-  //     status: "delivered",
-  //     paymentStatus: "paid",
-  //     date: "2024-01-13T09:15:00Z",
-  //     items: [{ name: "Áo sơ mi", quantity: 2, price: 600000 }],
-  //   },
-  //   {
-  //     id: "ORD004",
-  //     orderNumber: "ORD004",
-  //     customer: "Phạm Thị D",
-  //     email: "phamthid@email.com",
-  //     phone: "0555123456",
-  //     total: 2000000,
-  //     status: "cancelled",
-  //     paymentStatus: "refunded",
-  //     date: "2024-01-12T16:45:00Z",
-  //     items: [{ name: "Set đồ bộ", quantity: 1, price: 2000000 }],
-  //   },
-  // ]);
-
+  if (orders.length === 0) {
+    return (
+      <AdminLayout
+        title="Quản lý đơn hàng"
+        activeLabel="Đơn hàng"
+        backTo="/admin"
+        showBackButton={false}
+        showSaveButton={false}
+      >
+        <LoadingAdmin />
+      </AdminLayout>
+    );
+  }
   const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
