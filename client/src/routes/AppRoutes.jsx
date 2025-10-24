@@ -17,6 +17,7 @@ import Customers from "../admin/pages/Customers";
 import Promotions from "../admin/pages/Promotions";
 import Analytics from "../admin/pages/Analytics";
 import Settings from "../admin/pages/Settings";
+import Messages from "../admin/pages/Messages";
 import AdminWrapper from "../admin/components/Layout/AdminWrapper";
 import ProtectedRoute from "../admin/ProtectedRoute/ProtectedRoute";
 import ManageAdmins from "../admin/components/ManageAdmins";
@@ -29,6 +30,7 @@ const HomePage = lazy(() => import("../pages/HomePage"));
 const CategoryPage = lazy(() => import("../components/CategoryPage"));
 const ProductDetail = lazy(() => import("../components/ProductDetail"));
 const CheckoutPage = lazy(() => import("../components/CheckoutPage"));
+const ContactPage = lazy(() => import("../pages/ContactPage"));
 
 const AppRoutes = () => {
   return (
@@ -47,10 +49,7 @@ const AppRoutes = () => {
               element={<OrderSuccessPage />}
             />
             <Route path="tracking" element={<TrackingPage />} />
-            <Route
-              path="contact"
-              element={<div className="py-10">Liên hệ (đang cập nhật)</div>}
-            />
+            <Route path="contact" element={<ContactPage />} />
             <Route path="*" element={<NotFound />} />
             <Route path="search" element={<SearchResultsPage />} />
           </Route>
@@ -166,6 +165,14 @@ const AppRoutes = () => {
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="messages"
+              element={
+                <ProtectedRoute>
+                  <Messages />
                 </ProtectedRoute>
               }
             />

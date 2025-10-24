@@ -81,12 +81,13 @@ const NewArrivals = ({
             interval: 3000,
             speed: 800,
             arrows: false,
-            pagination: false,
+            pagination: true,
             perMove: 1,
             breakpoints: {
               1024: { perPage: 1 },
             },
           }}
+          className="relative pb-10"
         >
           {products.map((product) => (
             <SplideSlide key={product._id}>
