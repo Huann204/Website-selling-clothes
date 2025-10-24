@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   UserStar,
+  MessageSquare,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -20,6 +21,7 @@ export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
     { label: "Sản phẩm", icon: Package, to: "/admin/products" },
     { label: "Danh mục", icon: Layers, to: "/admin/categories" },
     { label: "Khách hàng", icon: Users, to: "/admin/customers" },
+    { label: "Tin nhắn", icon: MessageSquare, to: "/admin/messages" },
     {
       label: "Quản lý quản trị viên",
       icon: UserStar,
