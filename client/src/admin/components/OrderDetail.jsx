@@ -164,17 +164,14 @@ export default function OrderDetail() {
         }),
       };
 
-      const res = await fetch(
-        `http://localhost:5000/api/admin/orders/${order._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
+      const res = await fetch(`${API_URL}/api/admin/orders/${order._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(updateData),
+      });
 
       if (!res.ok) throw new Error("Failed to update status");
       await res.json();
