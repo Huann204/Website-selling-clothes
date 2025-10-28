@@ -49,6 +49,10 @@ const ContactPage = () => {
       }
     };
     fetchSocialLinks();
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }, []);
 
   const handleChange = (e) => {

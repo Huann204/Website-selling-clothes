@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BiSearch, BiPackage, BiCheckCircle } from "react-icons/bi";
 import { MdLocalShipping, MdCancel } from "react-icons/md";
 import { FaBoxOpen, FaPhone } from "react-icons/fa";
@@ -12,7 +12,12 @@ const TrackingPage = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const handleSearch = async (e) => {
     e.preventDefault();
 

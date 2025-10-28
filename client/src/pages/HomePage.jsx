@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AnnouncementBar from "../components/AnnouncementBar";
 import HeroSection from "../components/HeroSection";
 import GenderBanner from "../components/GenderBanner";
 import NewArrivals from "../components/NewArrivals";
 import PolicySection from "../components/PolicySection";
-import ProductList from "../components/ProductList";
+import TopSellingList from "../components/TopSellingList";
 
 const HomePage = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   return (
     <div>
       <AnnouncementBar />
@@ -14,8 +20,7 @@ const HomePage = () => {
       <GenderBanner />
       <NewArrivals title="WHAT'S NEW" />
       <PolicySection />
-      <ProductList title="ÁO THUN" subcategory={["ao-thun"]} limit={8} />
-      <ProductList title="ÁO SƠ MI" subcategory={["ao-so-mi"]} limit={8} />
+      <TopSellingList title="BEST SELLERS" limit={8} homepage />
     </div>
   );
 };
