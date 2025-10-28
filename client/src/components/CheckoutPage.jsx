@@ -442,6 +442,7 @@ const CheckoutPage = () => {
                     type="radio"
                     name="payment"
                     value="card"
+                    className="accent-black"
                     checked={formData.paymentMethod === "card"}
                     onChange={(e) =>
                       handleInputChange("paymentMethod", e.target.value)
@@ -460,6 +461,7 @@ const CheckoutPage = () => {
                     type="radio"
                     name="payment"
                     value="shoppeepay"
+                    className="accent-black"
                     checked={formData.paymentMethod === "shoppeepay"}
                     onChange={(e) =>
                       handleInputChange("paymentMethod", e.target.value)
@@ -478,6 +480,7 @@ const CheckoutPage = () => {
                     type="radio"
                     name="payment"
                     value="cod"
+                    className="accent-black"
                     checked={formData.paymentMethod === "cod"}
                     onChange={(e) =>
                       handleInputChange("paymentMethod", e.target.value)

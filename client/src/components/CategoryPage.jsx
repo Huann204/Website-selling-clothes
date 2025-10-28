@@ -84,7 +84,7 @@ const CategoryPage = () => {
                         return filter;
                       })
                     }
-                    className="mr-[10px] h-[15px] w-[15px]"
+                    className="mr-[10px] h-[15px] w-[15px] accent-black"
                   />
                   {item}
                 </div>
