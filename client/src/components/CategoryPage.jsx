@@ -32,7 +32,7 @@ const CategoryPage = () => {
       top: 0,
       behavior: "smooth",
     });
-  }, []);
+  }, [slug]);
   // const handleChange = (item, checked) => {
   //   const slug = subcategory[item]; // map sang slug
   //   if (checked) {

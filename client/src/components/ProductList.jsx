@@ -73,6 +73,7 @@ const ProductList = ({
           }`}
         >
           {products.map((product) => {
+            if (product.isActive === false) return null;
             return <ProductCard key={product._id} product={product} />;
           })}
         </div>
