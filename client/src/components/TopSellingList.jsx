@@ -48,6 +48,7 @@ const TopSellingList = ({ title, homepage, limit, page }) => {
           }`}
         >
           {products.map((products) => {
+            if (products?.productId?.isActive === false) return null;
             return (
               <ProductCard key={products._id} product={products?.productId} />
             );
