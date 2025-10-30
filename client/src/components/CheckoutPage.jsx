@@ -104,7 +104,9 @@ const CheckoutPage = () => {
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Vui lòng nhập số điện thoại";
-    } else if (!/^[0-9]{10}$/.test(formData.phone.replace(/\s/g, ""))) {
+    } else if (
+      !/^(03|05|07|08|09)[0-9]{8}$/.test(formData.phone.replace(/\s/g, ""))
+    ) {
       newErrors.phone = "Số điện thoại không hợp lệ";
     }
 
