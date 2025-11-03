@@ -1,38 +1,39 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock } from "lucide-react"; // icon nhẹ nhàng
+import { Mail, Lock } from "lucide-react";
 import API_URL from "../../config";
+import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
 
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch(`${API_URL}/api/admin/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Đăng nhập thất bại");
-
+  const {
+    mutate: postAut,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: async (data) => {
+      const res = await axios.post(`${API_URL}/api/admin/auth/login`, data);
+      return res.data;
+    },
+    onSuccess: (data) => {
       login(data.token);
       navigate("/admin");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    postAut({
+      email,
+      password,
+    });
   };
 
   return (
@@ -41,8 +42,10 @@ export default function AdminLogin() {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Admin Login
         </h2>
-        {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
+        {isError && (
+          <p className="text-red-500 text-sm mb-3 text-center">
+            {error.response?.data?.message || "Đăng nhập thất bại!"}
+          </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
@@ -72,10 +75,10 @@ export default function AdminLogin() {
           {/* Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={isPending}
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-lg font-semibold shadow hover:opacity-90 transition disabled:opacity-50"
           >
-            {loading ? "Đang xử lý..." : "Đăng nhập"}
+            {isPending ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">

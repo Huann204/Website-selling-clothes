@@ -13,11 +13,9 @@ import {
   getGHNDistricts,
   getGHNWards,
 } from "../utils/ghn-location";
+import { useQuery } from "@tanstack/react-query";
 import API_URL from "../config";
 const CheckoutPage = () => {
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [wards, setWards] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
@@ -31,47 +29,7 @@ const CheckoutPage = () => {
     paymentMethod: "",
   });
   const navigate = useNavigate();
-  useEffect(() => {
-    async function fetchProvinces() {
-      try {
-        const data = await getGHNProvinces();
-        setProvinces(data);
-      } catch (error) {
-        console.error("Error fetching provinces:", error);
-        setErrors((prev) => ({
-          ...prev,
-          provinces: "Không thể tải danh sách tỉnh/thành phố",
-        }));
-      }
-    }
-    fetchProvinces();
-  }, []);
-  const getDistricts = async (provinceId) => {
-    try {
-      const data = await getGHNDistricts(provinceId);
-      setDistricts(data);
-    } catch (err) {
-      console.error("Error fetching districts:", err);
-      setErrors((prev) => ({
-        ...prev,
-        districts: "Không thể tải danh sách quận/huyện",
-      }));
-    }
-  };
-
-  const getWards = async (districtId) => {
-    try {
-      const data = await getGHNWards(districtId);
-      setWards(data);
-    } catch (err) {
-      console.error("Error fetching wards:", err);
-      setErrors((prev) => ({
-        ...prev,
-        wards: "Không thể tải danh sách phường/xã",
-      }));
-    }
-  };
-
+  // ...existing code...
   // Tính phí ship khi chọn đủ địa chỉ
   useEffect(() => {
     async function calculateShipping() {
@@ -87,7 +45,24 @@ const CheckoutPage = () => {
     }
     calculateShipping();
   }, [selectedDistrict, selectedWard]);
+  // ...existing code...
+  const { data: provinces = [] } = useQuery({
+    queryKey: ["ghnProvinces"],
+    queryFn: getGHNProvinces,
+  });
 
+  const { data: districts = [] } = useQuery({
+    queryKey: ["ghnDistricts", selectedProvince],
+    queryFn: () => getGHNDistricts(selectedProvince),
+    enabled: !!selectedProvince,
+  });
+
+  const { data: wards = [] } = useQuery({
+    queryKey: ["ghnWards", selectedDistrict],
+    queryFn: () => getGHNWards(selectedDistrict),
+    enabled: !!selectedDistrict,
+  });
+  // ...existing code...
   // Validation functions
   const validateForm = () => {
     const newErrors = {};
@@ -326,9 +301,7 @@ const CheckoutPage = () => {
                         setSelectedProvince(id);
                         setSelectedDistrict("");
                         setSelectedWard("");
-                        setDistricts([]);
-                        setWards([]);
-                        if (id) getDistricts(id);
+                        // districts và wards sẽ tự động cập nhật qua useQuery
                         if (errors.province) {
                           setErrors((prev) => ({ ...prev, province: "" }));
                         }
@@ -354,8 +327,7 @@ const CheckoutPage = () => {
                         const id = e.target.value;
                         setSelectedDistrict(id);
                         setSelectedWard("");
-                        setWards([]);
-                        if (id) getWards(id);
+                        // wards sẽ tự động cập nhật qua useQuery
                         if (errors.district) {
                           setErrors((prev) => ({ ...prev, district: "" }));
                         }

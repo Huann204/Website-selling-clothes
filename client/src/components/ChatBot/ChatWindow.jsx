@@ -3,6 +3,9 @@ import ChatMessage from "./ChatMessage";
 import { X, Send, MessageCircle, Minimize2 } from "lucide-react";
 import "./ChatWidget.css";
 import API_URL from "../../config";
+import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
+
 export default function ChatWindow({ onClose }) {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem("chatMessages");
@@ -20,8 +23,30 @@ export default function ChatWindow({ onClose }) {
     localStorage.setItem("chatMessages", JSON.stringify(messages));
   }, [messages]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  // const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Dùng useMutation để gửi tin nhắn đến chatbot
+  const { mutate: sendChatMessage, isPending } = useMutation({
+    mutationFn: async (messageData) => {
+      const res = await axios.post(`${API_URL}/api/chatbot`, messageData);
+      return res.data;
+    },
+    onSuccess: (data) => {
+      const botMsg = { from: "bot", text: data.reply };
+      setMessages((prev) => [...prev, botMsg]);
+      // setIsTyping(false);
+    },
+    onError: (error) => {
+      console.error("Error:", error);
+      const errorMsg = {
+        from: "bot",
+        text: "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại.",
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+      // setIsTyping(false);
+    },
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,24 +61,12 @@ export default function ChatWindow({ onClose }) {
     const userMsg = { from: "user", text: input };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setIsTyping(true);
+    // setIsTyping(true);
 
-    try {
-      const res = await fetch(`${API_URL}/api/chatbot`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
-      });
-
-      const data = await res.json();
-
-      const botMsg = { from: "bot", text: data.reply };
-      setMessages((prev) => [...prev, botMsg]);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsTyping(false);
-    }
+    // Gọi mutation để gửi tin nhắn
+    sendChatMessage({
+      messages: [...messages, userMsg],
+    });
   };
 
   const handleKeyPress = (e) => {
@@ -103,7 +116,7 @@ export default function ChatWindow({ onClose }) {
         ))}
 
         {/* Typing Indicator */}
-        {isTyping && (
+        {isPending && (
           <div className="flex justify-start message-slide">
             <div className="flex items-start space-x-3">
               <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0">

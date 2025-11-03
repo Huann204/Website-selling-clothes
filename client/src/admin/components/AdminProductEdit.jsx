@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProductFormLayout, ProductFormContent } from "./Layout/LayoutAdmin";
 import { AuthContext } from "../context/AuthContext";
@@ -36,13 +36,6 @@ export default function AdminProductEdit() {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
   // Fetch dữ liệu sản phẩm để edit
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -235,14 +228,15 @@ export default function AdminProductEdit() {
       // Gửi PUT request để cập nhật
       const res = await fetch(`${API_URL}/api/products/${id}`, {
         method: "PUT",
-        headers,
-        // headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(productData),
       });
 
       if (!res.ok) throw new Error("Lỗi khi cập nhật sản phẩm!");
 
-      // ✅ Thành công → chuyển hướng
       const data = await res.json();
       console.log("Đã cập nhật sản phẩm:", data);
       alert("Cập nhật sản phẩm thành công!");

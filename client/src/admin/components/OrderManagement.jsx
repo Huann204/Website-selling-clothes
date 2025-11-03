@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import {
@@ -17,37 +17,19 @@ import {
   Mail,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
-import API_URL from "../../config";
 import LoadingAdmin from "./shared/LoadingAdmin";
+import { useOrdersData } from "../hooks/useOrdersData";
+
 export default function OrderManagement() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const [orders, setOrders] = useState([]);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const res = await fetch(`${API_URL}/api/admin/orders`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
 
-        if (!res.ok) throw new Error("Lỗi fetch orders");
-        const data = await res.json();
-        setOrders(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchOrders();
-  }, [token]);
-  if (orders.length === 0) {
+  const { data: orders, isLoading } = useOrdersData(token);
+  if (orders?.length === 0) {
     return (
       <AdminLayout
         title="Quản lý đơn hàng"
@@ -56,53 +38,57 @@ export default function OrderManagement() {
         showBackButton={false}
         showSaveButton={false}
       >
-        <LoadingAdmin />
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Không có đơn hàng nào</h2>
+          <p className="mt-4 text-slate-500">
+            Hãy thêm đơn hàng mới để bắt đầu quản lý.
+          </p>
+        </div>
       </AdminLayout>
     );
   }
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pending":
-        return <Package className="h-4 w-4 text-yellow-500" />;
-      case "shipped":
-        return <Truck className="h-4 w-4 text-blue-500" />;
-      case "delivered":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "cancelled":
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return <Package className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  if (isLoading) {
+    <adminLayout
+      title="Quản lý đơn hàng"
+      activeLabel="Đơn hàng"
+      backTo="/admin"
+      showBackButton={false}
+      showSaveButton={false}
+    >
+      <LoadingAdmin />
+    </adminLayout>;
+  }
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "pending":
-        return "Chờ xử lý";
-      case "shipped":
-        return "Đang giao";
-      case "delivered":
-        return "Đã giao";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return "Đã xác nhận";
-    }
-  };
+  const getOrderStatus = (status) => {
+    const statusConfig = {
+      pending: {
+        icon: <Package className="h-4 w-4 text-yellow-500" />,
+        text: "Chờ xử lý",
+        color: "bg-yellow-100 text-yellow-800",
+      },
+      shipped: {
+        icon: <Truck className="h-4 w-4 text-blue-500" />,
+        text: "Đang giao",
+        color: "bg-blue-100 text-blue-800",
+      },
+      delivered: {
+        icon: <CheckCircle className="h-4 w-4 text-green-500" />,
+        text: "Đã giao",
+        color: "bg-green-100 text-green-800",
+      },
+      cancelled: {
+        icon: <XCircle className="h-4 w-4 text-red-500" />,
+        text: "Đã hủy",
+        color: "bg-red-100 text-red-800",
+      },
+      confirmed: {
+        icon: <Package className="h-4 w-4 text-gray-500" />,
+        text: "Đã xác nhận",
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+      },
+    };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "shipped":
-        return "bg-blue-100 text-blue-800";
-      case "delivered":
-        return "bg-green-100 text-green-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-blue-100 text-blue-800 border-blue-200";
-    }
+    return statusConfig[status] || statusConfig.confirmed;
   };
 
   const formatPrice = (price) => {
@@ -114,7 +100,7 @@ export default function OrderManagement() {
   };
 
   // Filter orders based on search and filters
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = orders?.filter((order) => {
     const matchesSearch =
       searchTerm === "" ||
       order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -202,7 +188,7 @@ export default function OrderManagement() {
               <div>
                 <p className="text-sm text-slate-600">Chờ xử lý</p>
                 <p className="text-xl font-semibold text-slate-900">
-                  {orders.filter((o) => o.status === "pending").length}
+                  {orders?.filter((o) => o.status === "pending").length}
                 </p>
               </div>
             </div>
@@ -216,7 +202,7 @@ export default function OrderManagement() {
               <div>
                 <p className="text-sm text-slate-600">Đang giao</p>
                 <p className="text-xl font-semibold text-slate-900">
-                  {orders.filter((o) => o.status === "shipped").length}
+                  {orders?.filter((o) => o.status === "shipped").length}
                 </p>
               </div>
             </div>
@@ -230,7 +216,7 @@ export default function OrderManagement() {
               <div>
                 <p className="text-sm text-slate-600">Đã giao</p>
                 <p className="text-xl font-semibold text-slate-900">
-                  {orders.filter((o) => o.status === "delivered").length}
+                  {orders?.filter((o) => o.status === "delivered").length}
                 </p>
               </div>
             </div>
@@ -244,7 +230,7 @@ export default function OrderManagement() {
               <div>
                 <p className="text-sm text-slate-600">Đã hủy</p>
                 <p className="text-xl font-semibold text-slate-900">
-                  {orders.filter((o) => o.status === "cancelled").length}
+                  {orders?.filter((o) => o.status === "cancelled").length}
                 </p>
               </div>
             </div>
@@ -278,8 +264,8 @@ export default function OrderManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-slate-50">
+                {filteredOrders?.map((order) => (
+                  <tr key={order?._id} className="hover:bg-slate-50">
                     <td className="px-6 py-4">
                       <span className="font-medium text-slate-900">
                         #{order?._id}
@@ -288,15 +274,15 @@ export default function OrderManagement() {
                     <td className="px-6 py-4">
                       <div>
                         <div className="font-medium text-slate-900">
-                          {order.customer?.name}
+                          {order?.customer?.name}
                         </div>
                         <div className="text-sm text-slate-500 flex items-center gap-1">
                           <Mail className="h-3 w-3" />
-                          {order.customer?.email}
+                          {order?.customer?.email}
                         </div>
                         <div className="text-sm text-slate-500 flex items-center gap-1">
                           <Phone className="h-3 w-3" />
-                          {order.customer?.phone}
+                          {order?.customer?.phone}
                         </div>
                       </div>
                     </td>
@@ -307,24 +293,24 @@ export default function OrderManagement() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        {getStatusIcon(order.status)}
+                        {getOrderStatus(order.status).icon}
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(
-                            order.status
-                          )}`}
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            getOrderStatus(order?.status).color
+                          }`}
                         >
-                          {getStatusText(order.status)}
+                          {getOrderStatus(order.status).text}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
-                      {formatDate(order.createdAt)}
+                      {formatDate(order?.createdAt)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() =>
-                            navigate(`/admin/orderDetail/${order._id}`)
+                            navigate(`/admin/orderDetail/${order?._id}`)
                           }
                           className="rounded-lg border border-slate-300 p-2 text-slate-600 hover:bg-slate-100 hover:border-slate-400"
                           title="Xem chi tiết"
@@ -345,26 +331,28 @@ export default function OrderManagement() {
 
         {/* Orders List - Mobile Cards */}
         <div className="lg:hidden space-y-4">
-          {filteredOrders.map((order) => (
+          {filteredOrders?.map((order) => (
             <div
               key={order._id}
               className="rounded-xl border border-slate-200 bg-white p-4"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-slate-900">#{order._id}</h3>
+                  <h3 className="font-semibold text-slate-900">
+                    #{order?._id}
+                  </h3>
                   <p className="text-sm text-slate-600">
-                    {formatDate(order.createdAt)}
+                    {formatDate(order?.createdAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {getStatusIcon(order.status)}
+                  {getOrderStatus(order?.status).icon}
                   <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(
-                      order.status
-                    )}`}
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${
+                      getOrderStatus(order.status).color
+                    }`}
                   >
-                    {getStatusText(order.status)}
+                    {getOrderStatus(order?.status).text}
                   </span>
                 </div>
               </div>
@@ -373,19 +361,19 @@ export default function OrderManagement() {
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-slate-400" />
                   <span className="text-sm text-slate-900">
-                    {order.customer?.name}
+                    {order?.customer?.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-slate-400" />
                   <span className="text-sm text-slate-600">
-                    {order.customer?.email}
+                    {order?.customer?.email}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-slate-400" />
                   <span className="text-sm text-slate-600">
-                    {order.customer?.phone}
+                    {order?.customer?.phone}
                   </span>
                 </div>
               </div>
@@ -394,12 +382,12 @@ export default function OrderManagement() {
                 <div>
                   <p className="text-sm text-slate-600">Tổng tiền</p>
                   <p className="text-lg font-semibold text-slate-900">
-                    {formatPrice(order.total)}
+                    {formatPrice(order?.total)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => navigate(`/admin/orderDetail/${order._id}`)}
+                    onClick={() => navigate(`/admin/orderDetail/${order?._id}`)}
                     className="rounded-lg border border-slate-300 p-2 text-slate-600 hover:bg-slate-100"
                   >
                     <Eye className="h-4 w-4" />
@@ -414,7 +402,7 @@ export default function OrderManagement() {
         </div>
 
         {/* Empty State */}
-        {filteredOrders.length === 0 && (
+        {filteredOrders?.length === 0 && (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-900 mb-2">

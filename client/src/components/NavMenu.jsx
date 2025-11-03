@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const NavMenu = ({ isOpen, onClose }) => {
   useEffect(() => {
@@ -8,7 +8,13 @@ const NavMenu = ({ isOpen, onClose }) => {
     else document.body.classList.remove("overflow-hidden");
     return () => document.body.classList.remove("overflow-hidden");
   }, [isOpen]);
-
+  const Nav = [
+    { name: "Trang chủ", to: "/" },
+    { name: "Nam", to: "/category/for-him" },
+    { name: "Nữ", to: "/category/for-her" },
+    { name: "Tra cứu đơn hàng", to: "/tracking" },
+    { name: "Liên Hệ", to: "/contact" },
+  ];
   return (
     <div
       className={` top-0 left-0 h-[100vh] w-full bg-white fixed inset-0 z-[1000]  pt-[30px]
@@ -25,26 +31,21 @@ const NavMenu = ({ isOpen, onClose }) => {
 
         {/* Danh sách menu */}
         <ul className="text-[13px] text-center flex-1">
-          <li className="mb-[10px]">
-            <Link to="/" onClick={onClose} className="block">
-              TRANG CHỦ
-            </Link>
-          </li>
-          <li className="mb-[10px]">
-            <Link to="/category/for-him" onClick={onClose} className="block">
-              NAM
-            </Link>
-          </li>
-          <li className="mb-[10px]">
-            <Link to="/category/for-her" onClick={onClose} className="block">
-              NỮ
-            </Link>
-          </li>
-          <li>
-            <Link to="/contact" onClick={onClose} className="block">
-              LIÊN HỆ
-            </Link>
-          </li>
+          {Nav.map((item, index) => (
+            <li key={index} className="mb-6 uppercase">
+              <NavLink
+                to={item.to}
+                onClick={() => onClose()}
+                className={({ isActive }) =>
+                  `nav-underline cursor-pointer relative ${
+                    isActive ? "font-semibold" : ""
+                  }`
+                }
+              >
+                {item.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

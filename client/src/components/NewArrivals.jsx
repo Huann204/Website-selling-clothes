@@ -1,59 +1,42 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { FiShoppingCart } from "react-icons/fi";
 import Loading from "../shared/Loading";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../config";
-
-const NewArrivals = ({
-  title,
-  category,
-  subcategory,
-  sort,
-  tag,
-  page,
-  limit,
-}) => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
   const Navigate = useNavigate();
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        const query = new URLSearchParams({
-          ...(category && { category }),
-          ...(subcategory && { subcategory }),
-          ...(sort && { sort }),
-          ...(tag && { tag }),
-          page,
-          limit,
-        });
-        const res = await fetch(`${API_URL}/api/products?${query.toString()}`);
-        if (!res.ok) throw new Error("Lỗi fetch products");
-
-        const data = await res.json();
-
-        setProducts(data.products || data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProducts();
-  }, [category, subcategory, page, limit, sort, tag]);
-  if (loading)
+  const fetchProducts = async () => {
+    const query = new URLSearchParams({
+      ...(category && { category }),
+      ...(subcategory && { subcategory }),
+      ...(tag && { tag }),
+      ...(page && { page }),
+      ...(limit && { limit }),
+    });
+    const res = await axios.get(`${API_URL}/api/products?${query.toString()}`);
+    return res.data.products || res.data;
+  };
+  const {
+    data: products,
+    isLoading,
+    isError,
+    error: queryError,
+  } = useQuery({
+    queryKey: ["products", category, subcategory, tag, page, limit],
+    queryFn: fetchProducts,
+  });
+  if (isLoading)
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loading />
       </div>
     );
-  if (error) return <p> Lỗi: {error}</p>;
-  if (!products.length) {
+  if (isError) return <p> Lỗi: {queryError.message}</p>;
+  if (!products?.length) {
     return (
       <div className="flex items-center justify-center min-h-[50vh] text-gray-500">
         Không có sản phẩm nào trong danh mục này.

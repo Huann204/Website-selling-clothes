@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useMemo, useContext } from "react";
+import React, { useState, useContext } from "react";
 import AdminLayout from "./Layout/AdminLayout";
 import { AuthContext } from "../context/AuthContext";
 import { Plus, Pencil, Trash2, RefreshCw, Shield } from "lucide-react";
 import API_URL from "../../config";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 export default function ManageAdmins() {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
+  const queryClient = useQueryClient();
 
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -23,40 +24,123 @@ export default function ManageAdmins() {
     password: "",
     role: "admin",
   });
-  const [saving, setSaving] = useState(false);
 
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
+  // React Query - Fetch admins
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["admins", token],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/admin/admins`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(res.data);
+      return res.data;
+    },
+    enabled: !!token,
+  });
 
-  async function fetchAdmins() {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_URL}/api/admin/admins`, { headers });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(
-          data?.message || "Không tải được danh sách quản trị viên"
-        );
-      setItems(Array.isArray(data) ? data : data?.items || []);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const items = data || [];
 
-  useEffect(() => {
-    fetchAdmins();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  const createMutation = useMutation({
+    mutationFn: async (formData) => {
+      const res = await axios.post(`${API_URL}/api/admin/admins`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      setIsCreateOpen(false);
+      queryClient.invalidateQueries(["admins"]);
+      setError("");
+    },
+    onError: (error) => {
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Không tạo được quản trị viên"
+      );
+    },
+  });
 
-  const filtered = useMemo(() => {
+  // React Query - Update admin mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, formData }) => {
+      const res = await axios.patch(
+        `${API_URL}/api/admin/admins/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      setIsEditOpen(false);
+      setCurrentEdit(null);
+      queryClient.invalidateQueries(["admins"]);
+      setError("");
+    },
+    onError: (error) => {
+      setError(
+        error.response?.data?.message || error.message || "Cập nhật thất bại"
+      );
+    },
+  });
+
+  // React Query - Delete admin mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const res = await axios.delete(`${API_URL}/api/admin/admins/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admins"]);
+      setError("");
+    },
+    onError: (error) => {
+      setError(
+        error.response?.data?.message || error.message || "Xoá thất bại"
+      );
+    },
+  });
+
+  // React Query - Toggle active mutation
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, active }) => {
+      const res = await axios.patch(
+        `${API_URL}/api/admin/admins/${id}`,
+        { active },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admins"]);
+      setError("");
+    },
+    onError: (error) => {
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Cập nhật trạng thái thất bại"
+      );
+    },
+  });
+
+  const filtered = (() => {
     const q = search.trim().toLowerCase();
     if (!q) return items;
     return items.filter(
@@ -65,7 +149,7 @@ export default function ManageAdmins() {
         u.email?.toLowerCase().includes(q) ||
         u.role?.toLowerCase().includes(q)
     );
-  }, [items, search]);
+  })();
 
   function openCreate() {
     setForm({ name: "", email: "", password: "", role: "admin" });
@@ -83,91 +167,36 @@ export default function ManageAdmins() {
     setIsEditOpen(true);
   }
 
-  async function handleCreate(e) {
+  function handleCreate(e) {
     e?.preventDefault?.();
-    setSaving(true);
     setError("");
-
-    try {
-      const res = await fetch(`${API_URL}/api/admin/admins`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data?.message || "Không tạo được quản trị viên");
-      setIsCreateOpen(false);
-      await fetchAdmins();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
+    createMutation.mutate(form);
   }
 
-  async function handleUpdate(e) {
+  function handleUpdate(e) {
     e?.preventDefault?.();
     if (!currentEdit?._id) return;
-    setSaving(true);
     setError("");
-    try {
-      const res = await fetch(
-        `${API_URL}/api/admin/admins/${currentEdit._id}`,
-        {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify({
-            name: form.name,
-            role: form.role,
-            email: form.email,
-            password: form.password || undefined,
-          }),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Cập nhật thất bại");
-      setIsEditOpen(false);
-      setCurrentEdit(null);
-      await fetchAdmins();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
+    updateMutation.mutate({
+      id: currentEdit._id,
+      formData: {
+        name: form.name,
+        role: form.role,
+        email: form.email,
+        password: form.password || undefined,
+      },
+    });
   }
 
-  async function handleDelete(user) {
+  function handleDelete(user) {
     if (!window.confirm(`Xoá quản trị viên "${user.email}"?`)) return;
     setError("");
-    try {
-      const res = await fetch(`${API_URL}/api/admin/admins/${user._id}`, {
-        method: "DELETE",
-        headers,
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Xoá thất bại");
-      await fetchAdmins();
-    } catch (e) {
-      setError(e.message);
-    }
+    deleteMutation.mutate(user._id);
   }
 
-  async function handleToggleActive(user) {
+  function handleToggleActive(user) {
     setError("");
-    try {
-      const res = await fetch(`${API_URL}/api/admin/admins/${user._id}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ active: !user.active }),
-      });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data?.message || "Cập nhật trạng thái thất bại");
-      await fetchAdmins();
-    } catch (e) {
-      setError(e.message);
-    }
+    toggleActiveMutation.mutate({ id: user._id, active: !user.active });
   }
 
   return (
@@ -202,7 +231,7 @@ export default function ManageAdmins() {
               />
             </div>
             <button
-              onClick={fetchAdmins}
+              onClick={() => queryClient.invalidateQueries(["admins"])}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50"
             >
               <RefreshCw className="h-4 w-4" /> Tải lại
@@ -399,7 +428,7 @@ export default function ManageAdmins() {
           <AdminForm
             form={form}
             setForm={setForm}
-            saving={saving}
+            saving={createMutation.isPending}
             onClose={() => setIsCreateOpen(false)}
             onSubmit={handleCreate}
           />
@@ -414,7 +443,7 @@ export default function ManageAdmins() {
           <AdminForm
             form={form}
             setForm={setForm}
-            saving={saving}
+            saving={updateMutation.isPending}
             onSubmit={handleUpdate}
             onClose={() => setIsEditOpen(false)}
             isEdit

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductFormLayout, ProductFormContent } from "./Layout/LayoutAdmin";
 import { AuthContext } from "../context/AuthContext";
@@ -31,14 +31,6 @@ export default function AdminProductCreate() {
 
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  // Fetch dữ liệu sản phẩm để edit
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
   const formatPrice = (v) =>
     new Intl.NumberFormat("vi-VN").format(Number(v)) + "₫";
   // thêm 1 variant rỗng
@@ -167,7 +159,10 @@ export default function AdminProductCreate() {
 
       const res = await fetch(`${API_URL}/api/products`, {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(productData),
       });
       if (!res.ok) throw new Error("Lỗi khi lưu sản phẩm!");

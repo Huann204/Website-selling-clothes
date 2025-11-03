@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import AnnouncementBar from "./AnnouncementBar";
 import { Link, useParams } from "react-router-dom";
 import API_URL from "../config";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const OrderSuccessPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { orderId } = useParams();
-  const [data, setData] = useState({});
+  // const [data, setData] = useState({});
   useEffect(() => {
     // Scroll to top
     window.scrollTo({
@@ -20,22 +22,15 @@ const OrderSuccessPage = () => {
 
     return () => clearTimeout(timer);
   }, []);
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/admin/orders/${orderId}`);
-        if (!response.ok) throw new Error("Failed to fetch order details");
-        const data = await response.json();
-
-        setData(data);
-
-        // Do something with the order details
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-      }
-    };
-    fetchOrderDetails();
-  }, [orderId]);
+  const fetchOderDetail = async () => {
+    const res = await axios.get(`${API_URL}/api/admin/orders/${orderId}`);
+    return res.data;
+  };
+  const { data } = useQuery({
+    queryKey: ["orderId", orderId],
+    queryFn: fetchOderDetail,
+    enabled: !!orderId,
+  });
   return (
     <>
       <AnnouncementBar />
@@ -101,16 +96,6 @@ const OrderSuccessPage = () => {
             >
               TIẾP TỤC MUA HÀNG
             </Link>
-
-            {orderId && (
-              <Link
-                to={`/orders/${orderId}`}
-                className="inline-block py-3 px-6 border-2 border-black text-black text-sm lg:text-base font-semibold rounded-md hover:bg-black hover:text-white transition-colors duration-200"
-                aria-label="Xem chi tiết đơn hàng"
-              >
-                XEM ĐƠN HÀNG
-              </Link>
-            )}
           </div>
         </div>
       </div>

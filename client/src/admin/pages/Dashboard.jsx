@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import AdminLayout from "../components/Layout/AdminLayout";
 import {
   Package,
   ShoppingCart,
-  Users,
   DollarSign,
   TrendingUp,
   Eye,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
   BarChart3,
   Calendar,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  XCircle,
 } from "lucide-react";
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -33,103 +30,11 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import API_URL from "../../config";
 import { Link } from "react-router-dom";
 import LoadingAdmin from "../components/shared/LoadingAdmin";
+import { useDashboardData } from "../hooks/useDashboardData";
 
 const Dashboard = () => {
-  const [topProducts, setTopProducts] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [orderStats, setOrderStats] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
-  const [revenueData, setRevenueData] = useState([]);
-  const [stats, setStats] = useState({});
-
-  useEffect(() => {
-    const fetchTopProducts = async () => {
-      const res = await fetch(`${API_URL}/api/stats/sold-products?limit=5`);
-      const data = await res.json();
-      setTopProducts(data);
-    };
-    fetchTopProducts();
-    const fetchRecentOrders = async () => {
-      const res = await fetch(`${API_URL}/api/admin/orders?limit=5`);
-      const data = await res.json();
-      setRecentOrders(data);
-    };
-    fetchRecentOrders();
-    const fetchOrderStats = async () => {
-      const res = await fetch(`${API_URL}/api/stats/order-stats`);
-      const data = await res.json();
-      setOrderStats([
-        { name: "Hoàn thành", value: data.delivered, color: "#10b981" },
-        { name: "Chờ xử lý", value: data.pending, color: "#f59e0b" },
-        { name: "Đã hủy", value: data.cancelled, color: "#ef4444" },
-        { name: "Đã xác nhận", value: data.confirmed, color: "#3b82f6" },
-        { name: "Đang giao", value: data.shipped, color: "#3b82f6" },
-      ]);
-    };
-    fetchOrderStats();
-    const fetchTopCategories = async () => {
-      const res = await fetch(`${API_URL}/api/stats/top-categories?limit=5`);
-      const data = await res.json();
-      const formatSubcategory = {
-        "ao-so-mi": "Áo sơ mi",
-        "ao-thun": "Áo thun",
-        "quan-jean": "Quần jean",
-        "ao-khoac": "Áo khoác",
-        vay: "Váy",
-        "quan-tay": "Quần tây",
-      };
-      setCategoryData(
-        data.map((item) => ({
-          category: formatSubcategory[item.subcategory],
-          revenue: item.revenue,
-        }))
-      );
-    };
-    fetchTopCategories();
-    const fetchRevenueData = async () => {
-      const res = await fetch(`${API_URL}/api/stats/monthly-stats`);
-      const data = await res.json();
-      setRevenueData(
-        data.map((item) => ({
-          month: `T${item.month}`,
-          revenue: item.totalRevenue,
-          orders: item.totalOrders,
-        }))
-      );
-    };
-    fetchRevenueData();
-    const fetchAllStats = async () => {
-      const res = await fetch(`${API_URL}/api/stats/overview-stats`);
-      const data = await res.json();
-      console.log(data);
-      setStats({
-        totalRevenue: data.totalRevenue,
-        revenueGrowth: data.revenueGrowth,
-        totalOrders: data.totalOrders,
-        ordersGrowth: data.ordersGrowth,
-        totalProducts: data.totalProducts,
-        productsGrowth: data.productsGrowth,
-        // totalCustomers: data.totalCustomers,
-        // customersGrowth: data.customersGrowth,
-      });
-    };
-    fetchAllStats();
-  }, []);
-  if (!stats.totalRevenue) {
-    return (
-      <AdminLayout
-        title="Tổng quan"
-        activeLabel="Tổng quan"
-        showBackButton={false}
-      >
-        <LoadingAdmin />
-      </AdminLayout>
-    );
-  }
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -227,7 +132,6 @@ const Dashboard = () => {
     );
   };
 
-  // theme tooltip cho các chart
   const chartTooltipStyle = {
     background: "linear-gradient(180deg, #0b1220, #0f1724)",
     color: "#e6eef8",
@@ -237,6 +141,28 @@ const Dashboard = () => {
     padding: "8px 12px",
     fontSize: 12,
   };
+
+  const {
+    topProducts,
+    recentOrders,
+    orderStats,
+    categoryData,
+    revenueData,
+    stats,
+    isLoading,
+  } = useDashboardData();
+
+  if (isLoading) {
+    return (
+      <AdminLayout
+        title="Tổng quan"
+        activeLabel="Tổng quan"
+        showBackButton={false}
+      >
+        <LoadingAdmin />
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout
@@ -260,32 +186,25 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           <StatCard
             title="Tổng doanh thu"
-            value={formatCurrency(stats.totalRevenue)}
+            value={formatCurrency(stats?.totalRevenue)}
             icon={DollarSign}
-            growth={stats.revenueGrowth}
+            growth={stats?.revenueGrowth}
             color="bg-gradient-to-br from-green-500 to-green-600"
           />
           <StatCard
             title="Đơn hàng"
-            value={stats.totalOrders}
+            value={stats?.totalOrders}
             icon={ShoppingCart}
-            growth={stats.ordersGrowth}
+            growth={stats?.ordersGrowth}
             color="bg-gradient-to-br from-blue-500 to-blue-600"
           />
           <StatCard
             title="Sản phẩm"
-            value={stats.totalProducts}
+            value={stats?.totalProducts}
             icon={Package}
-            growth={stats.productsGrowth}
+            growth={stats?.productsGrowth}
             color="bg-gradient-to-br from-purple-500 to-purple-600"
           />
-          {/* <StatCard
-            title="Khách hàng"
-            value={stats.totalCustomers.toLocaleString()}
-            icon={Users}
-            growth={stats.customersGrowth}
-            color="bg-gradient-to-br from-orange-500 to-orange-600"
-          /> */}
         </div>
 
         {/* Charts Section */}
@@ -419,7 +338,7 @@ const Dashboard = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {orderStats.map((entry, index) => (
+                  {orderStats?.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -431,7 +350,7 @@ const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-2 mt-4">
-              {orderStats.map((item, index) => (
+              {orderStats?.map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div
@@ -543,7 +462,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {recentOrders.map((order) => (
+                    {recentOrders?.map((order) => (
                       <tr
                         key={order._id}
                         className="hover:bg-slate-50 transition-colors"
@@ -637,15 +556,6 @@ const Dashboard = () => {
                 Quản lý đơn hàng
               </span>
             </Link>
-            {/* <Link
-              to="/admin/customers"
-              className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-purple-500 hover:bg-purple-50 transition-colors group"
-            >
-              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 group-hover:text-purple-600 mb-2" />
-              <span className="text-xs sm:text-sm font-medium text-slate-700 group-hover:text-purple-700 text-center">
-                Khách hàng
-              </span>
-            </Link> */}
             <Link
               to="/admin/products"
               className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-lg border-2 border-dashed border-slate-300 hover:border-orange-500 hover:bg-orange-50 transition-colors group"

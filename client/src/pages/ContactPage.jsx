@@ -9,6 +9,8 @@ import {
   Instagram,
   Twitter,
 } from "lucide-react";
+import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import API_URL from "../config";
 import { SiZalo } from "react-icons/si";
 import { toast } from "react-toastify";
@@ -19,41 +21,44 @@ const ContactPage = () => {
     phone: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [contactInfo, setContactInfo] = useState(null);
-  const [socialLinks, setSocialLinks] = useState(null);
-
   useEffect(() => {
-    const fetchContactInfo = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/info`);
-        if (!response.ok) throw new Error("Failed to fetch contact info");
-        const data = await response.json();
-        console.log(data);
-        setContactInfo(data);
-      } catch (error) {
-        console.error("Error fetching contact info:", error);
-      }
-    };
-    fetchContactInfo();
-    const fetchSocialLinks = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/social`);
-        if (!response.ok) throw new Error("Failed to fetch social links");
-        const data = await response.json();
-        console.log(data);
-        setSocialLinks(data);
-      } catch (error) {
-        console.error("Error fetching social links:", error);
-      }
-    };
-    fetchSocialLinks();
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   }, []);
+  const fetchContactInfo = async () => {
+    const res = await axios.get(`${API_URL}/api/info`);
+    return res.data;
+  };
+
+  const { data: contactInfo } = useQuery({
+    queryKey: ["contactInfo"],
+    queryFn: fetchContactInfo,
+  });
+  const fetchSocialLinks = async () => {
+    const res = await axios.get(`${API_URL}/api/social`);
+    return res.data;
+  };
+  const { data: socialLinks } = useQuery({
+    queryKey: ["socialLinks"],
+    queryFn: fetchSocialLinks,
+  });
+  const { mutate: submitContact, isPending } = useMutation({
+    mutationFn: async (formData) => {
+      const res = await axios.post(`${API_URL}/api/messages`, formData);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Cảm ơn bạn đã gửi yêu cầu");
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+    },
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -64,7 +69,6 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     if (
       !formData.name ||
       !formData.email ||
@@ -72,44 +76,13 @@ const ContactPage = () => {
       !formData.phone
     ) {
       toast.error("Vui lòng điền đầy đủ các trường bắt buộc.");
-      setIsSubmitting(false);
       return;
     }
-    await fetch(`${API_URL}/api/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-      });
-
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
-    }, 1500);
-    toast.success("Cảm ơn bạn đã gửi yêu cầu");
+    submitContact(formData);
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Success Toast */}
-      {submitSuccess && (
-        <div className="fixed top-8 right-8 z-50 bg-black text-white px-6 py-4 shadow-2xl flex items-center gap-3 animate-slide-in">
-          <CheckCircle2 className="w-5 h-5" />
-          <span className="text-sm">Tin nhắn đã được gửi thành công</span>
-        </div>
-      )}
-
       {/* Hero Section */}
       <div className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
@@ -304,10 +277,10 @@ const ContactPage = () => {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isPending}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-black text-white px-8 sm:px-10 py-3.5 rounded-full hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase text-xs tracking-wider font-medium"
                   >
-                    {isSubmitting ? (
+                    {isPending ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                         <span>Đang gửi</span>

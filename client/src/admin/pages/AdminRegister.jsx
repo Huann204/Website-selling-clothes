@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 import API_URL from "../../config";
+import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
 
 export default function AdminRegister() {
   const navigate = useNavigate();
@@ -9,33 +11,40 @@ export default function AdminRegister() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const {
+    mutate: postAut,
+    isError,
+    error,
+    isSuccess,
+  } = useMutation({
+    mutationFn: async (userData) => {
+      const res = await axios.post(
+        `${API_URL}/api/admin/auth/register`,
+        userData
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      setTimeout(() => navigate("/admin/login"), 1500);
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setPasswordError("");
 
     if (password !== confirm) {
-      setError("Mật khẩu nhập lại không khớp!");
+      setPasswordError("Mật khẩu nhập lại không khớp!");
       return;
     }
 
-    try {
-      const res = await fetch(`${API_URL}/api/admin/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Đăng ký thất bại");
-
-      setSuccess("Đăng ký thành công! Vui lòng đợi duyệt.");
-      setTimeout(() => navigate("/admin/login"), 2000);
-    } catch (err) {
-      setError(err.message);
-    }
+    postAut({
+      name,
+      email,
+      password,
+    });
   };
 
   return (
@@ -44,11 +53,20 @@ export default function AdminRegister() {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Admin Register
         </h2>
-        {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
+        {passwordError && (
+          <p className="text-red-500 text-sm mb-3 text-center">
+            {passwordError}
+          </p>
         )}
-        {success && (
-          <p className="text-green-500 text-sm mb-3 text-center">{success}</p>
+        {isError && (
+          <p className="text-red-500 text-sm mb-3 text-center">
+            {error.response?.data?.message || "Đăng ký thất bại!"}
+          </p>
+        )}
+        {isSuccess && (
+          <p className="text-green-500 text-sm mb-3 text-center">
+            Đăng ký thành công! Vui lòng đợi duyệt.
+          </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* name */}

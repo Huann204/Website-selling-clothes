@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import AdminLayout from "../components/Layout/AdminLayout";
 import {
   Mail,
@@ -6,7 +6,6 @@ import {
   User,
   Calendar,
   Search,
-  Filter,
   Eye,
   Trash2,
   CheckCircle,
@@ -16,50 +15,88 @@ import {
 } from "lucide-react";
 import API_URL from "../../config";
 import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Messages = () => {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  const [messages, setMessages] = useState([]);
+  const queryClient = useQueryClient();
+
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [loading, setLoading] = useState(true);
 
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
+  // Fetch messages
+  const { data, isLoading } = useQuery({
+    queryKey: ["message", token],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/messages`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    },
+    enabled: !!token,
+  });
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${API_URL}/api/messages`, {
-          method: "GET",
-          headers,
-        });
-        const data = await res.json();
-        setMessages(data);
-        setFilteredMessages(data);
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      } finally {
-        setLoading(false);
+  // Mark as read mutation
+  const { mutate: markAsReadMutation } = useMutation({
+    mutationFn: async (id) => {
+      const res = await axios.patch(
+        `${API_URL}/api/messages/${id}`,
+        { status: "read" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["message"]);
+    },
+    onError: (error) => {
+      console.error("Error marking as read:", error);
+    },
+  });
+
+  // Delete message mutation
+  const { mutate: deleteMessageMutation } = useMutation({
+    mutationFn: async (id) => {
+      const res = await axios.delete(`${API_URL}/api/messages/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      if (selectedMessage) {
+        setIsModalOpen(false);
+        setSelectedMessage(null);
       }
-    };
-
-    fetchMessages();
-  }, [headers]);
+      queryClient.invalidateQueries(["message"]);
+    },
+    onError: (error) => {
+      console.error("Error deleting message:", error);
+      alert("Không thể xóa tin nhắn. Vui lòng thử lại!");
+    },
+  });
 
   // Filter messages
   useEffect(() => {
-    let filtered = messages;
+    if (!data) {
+      setFilteredMessages([]);
+      return;
+    }
+
+    let filtered = data;
 
     // Filter by search term
     if (searchTerm) {
@@ -77,54 +114,12 @@ const Messages = () => {
     }
 
     setFilteredMessages(filtered);
-  }, [searchTerm, statusFilter, messages]);
+  }, [searchTerm, statusFilter, data]);
 
-  // Mark as read
-  const markAsRead = async (id) => {
-    try {
-      // Update UI ngay lập tức
-      setMessages(
-        messages.map((msg) =>
-          msg._id === id ? { ...msg, status: "read" } : msg
-        )
-      );
-      const response = await fetch(`${API_URL}/api/messages/${id}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ status: "read" }),
-      });
-      if (!response.ok) throw new Error("Failed to mark as read");
-    } catch (error) {
-      console.error("Error marking as read:", error);
-      // Rollback nếu API fail
-      setMessages(
-        messages.map((msg) =>
-          msg._id === id ? { ...msg, status: "unread" } : msg
-        )
-      );
-    }
-  };
-
-  // Delete message
-  const deleteMessage = async (id) => {
+  // Delete message handler
+  const deleteMessage = (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa tin nhắn này?")) return;
-
-    try {
-      // Update UI
-      setMessages(messages.filter((msg) => msg._id !== id));
-      if (selectedMessage?._id === id) {
-        setIsModalOpen(false);
-        setSelectedMessage(null);
-      }
-
-      const response = await fetch(`${API_URL}/api/messages/${id}`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!response.ok) throw new Error("Failed to delete message");
-    } catch (error) {
-      console.error("Error deleting message:", error);
-    }
+    deleteMessageMutation(id);
   };
 
   // View message details
@@ -132,10 +127,11 @@ const Messages = () => {
     setSelectedMessage(message);
     setIsModalOpen(true);
     if (message.status === "unread") {
-      markAsRead(message._id);
+      markAsReadMutation(message._id);
     }
   };
 
+  // Get status badge
   const getStatusBadge = (status) => {
     const statusConfig = {
       unread: { color: "bg-blue-100 text-blue-800", label: "Chưa đọc" },
@@ -151,6 +147,7 @@ const Messages = () => {
     );
   };
 
+  // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("vi-VN", {
@@ -162,10 +159,11 @@ const Messages = () => {
     }).format(date);
   };
 
+  // Calculate stats
   const stats = {
-    total: messages.length,
-    unread: messages.filter((msg) => msg.status === "unread").length,
-    read: messages.filter((msg) => msg.status === "read").length,
+    total: data?.length || 0,
+    unread: data?.filter((msg) => msg.status === "unread").length || 0,
+    read: data?.filter((msg) => msg.status === "read").length || 0,
   };
 
   return (
@@ -233,28 +231,26 @@ const Messages = () => {
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <div className="flex gap-2">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="all">Tất cả</option>
-                <option value="unread">Chưa đọc</option>
-                <option value="read">Đã đọc</option>
-              </select>
-            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">Tất cả</option>
+              <option value="unread">Chưa đọc</option>
+              <option value="read">Đã đọc</option>
+            </select>
           </div>
         </div>
 
         {/* Messages List */}
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          {loading ? (
+          {isLoading ? (
             <div className="p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-blue-600 mx-auto mb-4"></div>
               <p className="text-slate-600">Đang tải tin nhắn...</p>
             </div>
-          ) : filteredMessages.length === 0 ? (
+          ) : filteredMessages?.length === 0 ? (
             <div className="p-8 text-center">
               <Mail className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-600">Không có tin nhắn nào</p>
@@ -299,11 +295,9 @@ const Messages = () => {
                             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
                               <User className="w-5 h-5 text-slate-600" />
                             </div>
-                            <div>
-                              <p className="font-medium text-slate-900">
-                                {message.name}
-                              </p>
-                            </div>
+                            <p className="font-medium text-slate-900">
+                              {message.name}
+                            </p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -496,9 +490,7 @@ const Messages = () => {
               {/* Actions */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                 <button
-                  onClick={() => {
-                    deleteMessage(selectedMessage._id);
-                  }}
+                  onClick={() => deleteMessage(selectedMessage._id)}
                   className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />

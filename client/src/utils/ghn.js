@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export async function calcGHNFee(districtId, wardCode, weight = 1000) {
   const payload = {
     service_type_id: 2,
@@ -12,21 +14,19 @@ export async function calcGHNFee(districtId, wardCode, weight = 1000) {
   };
 
   try {
-    const res = await fetch(
+    const res = await axios.post(
       "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+      payload,
       {
-        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Token: "d8959273-a8ee-11f0-bdaf-ae7fa045a771",
         },
-        body: JSON.stringify(payload),
       }
     );
+    const data = res.data;
 
-    const data = await res.json();
-
-    if (!res.ok || data.code !== 200) {
+    if (!res.status || data.code !== 200) {
       throw new Error(data.message || "Không thể tính phí ship");
     }
 
@@ -97,22 +97,21 @@ export async function createGHNOrder(orderData) {
   };
 
   try {
-    const res = await fetch(
+    const res = await axios.post(
       "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create",
+      payload,
       {
-        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Token: "d8959273-a8ee-11f0-bdaf-ae7fa045a771",
           ShopId: "197612",
         },
-        body: JSON.stringify(payload),
       }
     );
 
-    const data = await res.json();
+    const data = res.data;
 
-    if (!res.ok || data.code !== 200) {
+    if (!res.status || data.code !== 200) {
       throw new Error(data.message || "Không thể tạo đơn hàng trên GHN");
     }
 

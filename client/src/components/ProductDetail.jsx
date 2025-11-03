@@ -8,9 +8,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import sizeHim from "../assets/images/Size/sizehim.webp";
 import API_URL from "../config";
-
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const ProductDetail = () => {
-  const [products, setProducts] = useState({});
+  // const [products, setProducts] = useState({});
   const { slugId } = useParams();
   const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);
@@ -40,23 +41,15 @@ const ProductDetail = () => {
     bạc: "#C0C0C0",
   };
   const { addToCart } = useContext(CartContext);
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const id = slugId.split("-").pop(); // lấy id từ slug
-        const response = await fetch(`${API_URL}/api/products/${id}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-
-    fetchProduct();
-  }, [slugId]);
+  const fetchProduct = async () => {
+    const id = slugId.split("-").pop(); // lấy id từ slug
+    const res = await axios.get(`${API_URL}/api/products/${id}`);
+    return res.data;
+  };
+  const { data: products = {} } = useQuery({
+    queryKey: ["product", slugId],
+    queryFn: fetchProduct,
+  });
 
   useEffect(() => {
     if (products) {

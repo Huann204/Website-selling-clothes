@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import AdminLayout from "../components/Layout/AdminLayout";
 import {
   Store,
@@ -15,90 +15,103 @@ import {
 import API_URL from "../../config";
 import { AuthContext } from "../context/AuthContext";
 import { SiZalo } from "react-icons/si";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 const Settings = () => {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  const [generalSettings, setGeneralSettings] = useState(null);
-  const [socialSettings, setSocialSettings] = useState(null);
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState("general");
   const [saveStatus, setSaveStatus] = useState(null);
 
+  const { data: generalSettings } = useQuery({
+    queryKey: ["general-settings"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/info`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+    enabled: !!token,
+  });
+
+  // Fetch social settings
+  const { data: socialSettings } = useQuery({
+    queryKey: ["social-settings"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/social`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+    enabled: !!token,
+  });
+
+  const [generalForm, setGeneralForm] = useState({});
+  const [socialForm, setSocialForm] = useState({});
+
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/info`, {
-          method: "GET",
-          headers,
-        });
-        if (!response.ok) throw new Error("Failed to fetch settings");
-        const data = await response.json();
+    if (generalSettings) setGeneralForm(generalSettings);
+  }, [generalSettings]);
 
-        setGeneralSettings(data);
-        // Set the fetched settings to state
-      } catch (error) {
-        console.error("Error fetching settings:", error);
-      }
-    };
-    fetchSettings();
-    const fetchSocialSettings = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/social`, {
-          method: "GET",
-          headers,
-        });
-        if (!response.ok) throw new Error("Failed to fetch social settings");
-        const data = await response.json();
-        setSocialSettings(data);
-      } catch (error) {
-        console.error("Error fetching social settings:", error);
-      }
-    };
-    fetchSocialSettings();
-  }, [headers]);
+  useEffect(() => {
+    if (socialSettings) setSocialForm(socialSettings);
+  }, [socialSettings]);
 
-  const handleSave = async (section) => {
-    try {
-      if (section === "general") {
-        setSaveStatus("saving");
-
-        // Here you would make actual API call
-        const response = await fetch(`${API_URL}/api/info`, {
-          method: "PUT",
-          headers,
-          body: JSON.stringify(generalSettings),
-        });
-        const data = await response.json();
-        setGeneralSettings(data);
-        setSaveStatus("success");
-        setTimeout(() => setSaveStatus(null), 3000);
-      }
-      if (section === "social") {
-        setSaveStatus("saving");
-
-        const response = await fetch(`${API_URL}/api/social`, {
-          method: "PUT",
-          headers,
-          body: JSON.stringify(socialSettings),
-        });
-        const data = await response.json();
-
-        setSocialSettings(data);
-        setSaveStatus("success");
-        setTimeout(() => setSaveStatus(null), 3000);
-      }
-    } catch (error) {
+  // Update general settings
+  const updateGeneralMutation = useMutation({
+    mutationFn: async (data) => {
+      const res = await axios.put(`${API_URL}/api/info`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["general-settings"]);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus(null), 3000);
+    },
+    onError: (error) => {
       console.error("Error saving settings:", error);
       setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 3000);
+    },
+  });
+
+  const updateSocialMutation = useMutation({
+    mutationFn: async (data) => {
+      const res = await axios.put(`${API_URL}/api/social`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["social-settings"]);
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus(null), 3000);
+    },
+    onError: (error) => {
+      console.error("Error saving social settings:", error);
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus(null), 3000);
+    },
+  });
+
+  const handleSave = (section) => {
+    if (section === "general") {
+      setSaveStatus("saving");
+      updateGeneralMutation.mutate(generalForm);
+    } else if (section === "social") {
+      setSaveStatus("saving");
+      updateSocialMutation.mutate(socialForm);
     }
   };
 
@@ -202,10 +215,10 @@ const Settings = () => {
                       <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="text"
-                        value={generalSettings?.name}
+                        value={generalForm?.name || ""}
                         onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
+                          setGeneralForm({
+                            ...generalForm,
                             name: e.target.value,
                           })
                         }
@@ -222,10 +235,10 @@ const Settings = () => {
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="email"
-                        value={generalSettings?.email}
+                        value={generalForm?.email || ""}
                         onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
+                          setGeneralForm({
+                            ...generalForm,
                             email: e.target.value,
                           })
                         }
@@ -242,10 +255,10 @@ const Settings = () => {
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="tel"
-                        value={generalSettings?.phone}
+                        value={generalForm?.phone || ""}
                         onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
+                          setGeneralForm({
+                            ...generalForm,
                             phone: e.target.value,
                           })
                         }
@@ -262,10 +275,10 @@ const Settings = () => {
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="text"
-                        value={generalSettings?.address}
+                        value={generalForm?.address || ""}
                         onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
+                          setGeneralForm({
+                            ...generalForm,
                             address: e.target.value,
                           })
                         }
@@ -279,10 +292,10 @@ const Settings = () => {
                       Mô tả
                     </label>
                     <textarea
-                      value={generalSettings?.description}
+                      value={generalForm?.description || ""}
                       onChange={(e) =>
-                        setGeneralSettings({
-                          ...generalSettings,
+                        setGeneralForm({
+                          ...generalForm,
                           description: e.target.value,
                         })
                       }
@@ -321,10 +334,10 @@ const Settings = () => {
                       <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="url"
-                        value={socialSettings?.facebook || ""}
+                        value={socialForm?.facebook || ""}
                         onChange={(e) =>
-                          setSocialSettings({
-                            ...socialSettings,
+                          setSocialForm({
+                            ...socialForm,
                             facebook: e.target.value,
                           })
                         }
@@ -342,10 +355,10 @@ const Settings = () => {
                       <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="url"
-                        value={socialSettings?.instagram || ""}
+                        value={socialForm?.instagram || ""}
                         onChange={(e) =>
-                          setSocialSettings({
-                            ...socialSettings,
+                          setSocialForm({
+                            ...socialForm,
                             instagram: e.target.value,
                           })
                         }
@@ -363,10 +376,10 @@ const Settings = () => {
                       <SiZalo className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="url"
-                        value={socialSettings?.zalo || ""}
+                        value={socialForm?.zalo || ""}
                         onChange={(e) =>
-                          setSocialSettings({
-                            ...socialSettings,
+                          setSocialForm({
+                            ...socialForm,
                             zalo: e.target.value,
                           })
                         }

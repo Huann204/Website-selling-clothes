@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import {
-  ArrowLeft,
   Package,
   Truck,
   CheckCircle,
@@ -11,7 +10,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
   CreditCard,
   Printer,
   Download,
@@ -19,82 +17,63 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { createGHNOrder } from "../../utils/ghn";
 import API_URL from "../../config";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [ghnOrderCode, setGhnOrderCode] = useState(null);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  useEffect(() => {
-    const fetchOrder = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${API_URL}/api/admin/orders/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setOrder(data);
-          setLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.error("Error fetching order:", error);
-      }
+
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["order", id, token],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/admin/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+  });
+
+  const getOrderStatus = (status) => {
+    const statusConfig = {
+      pending: {
+        icon: <Package className="h-5 w-5 text-yellow-500" />,
+        text: "Chờ xử lý",
+        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      },
+      confirmed: {
+        icon: <CheckCircle className="h-5 w-5 text-blue-500" />,
+        text: "Đã xác nhận",
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+      },
+      shipped: {
+        icon: <Truck className="h-5 w-5 text-blue-500" />,
+        text: "Đang giao",
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+      },
+      delivered: {
+        icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+        text: "Đã giao",
+        color: "bg-green-100 text-green-800 border-green-200",
+      },
+      cancelled: {
+        icon: <XCircle className="h-5 w-5 text-red-500" />,
+        text: "Đã hủy",
+        color: "bg-red-100 text-red-800 border-red-200",
+      },
     };
 
-    fetchOrder();
-  }, [id]);
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pending":
-        return <Package className="h-5 w-5 text-yellow-500" />;
-      case "confirmed":
-        return <CheckCircle className="h-5 w-5 text-blue-500" />;
-      case "shipped":
-        return <Truck className="h-5 w-5 text-blue-500" />;
-      case "delivered":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "cancelled":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <Package className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "pending":
-        return "Chờ xử lý";
-      case "confirmed":
-        return "Đã xác nhận";
-      case "shipped":
-        return "Đang giao";
-      case "delivered":
-        return "Đã giao";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return "Không xác định";
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "confirmed":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "shipped":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "delivered":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
+    return (
+      statusConfig[status] || {
+        icon: <Package className="h-5 w-5 text-gray-500" />,
+        text: "Không xác định",
+        color: "bg-gray-100 text-gray-800 border-gray-200",
+      }
+    );
   };
 
   const formatPrice = (price) => {
@@ -111,125 +90,101 @@ export default function OrderDetail() {
     });
   };
 
-  const handleStatusUpdate = async (newStatus) => {
-    try {
-      // Nếu chuyển sang trạng thái "confirmed", tạo đơn hàng trên GHN
-      let ghnOrderCode = null;
-      if (newStatus === "confirmed") {
-        const districtId = order.customer?.address?.districtId;
-        const wardCode = order.customer?.address?.wardCode;
-
-        if (!districtId || !wardCode) {
-          alert(
-            "Không thể tạo đơn GHN: Thiếu thông tin districtId hoặc wardCode. Đơn hàng này có thể được tạo trước khi tích hợp GHN."
-          );
-        } else {
-          const ghnData = {
-            toName: order.customer?.name || "",
-            toPhone: order.customer?.phone || "",
-            toAddress: `${order.customer?.address?.street}, ${order.customer?.address?.ward}, ${order.customer?.address?.district}, ${order.customer?.address?.province}`,
-            toWardCode: wardCode,
-            toDistrictId: districtId,
-            codAmount: order.payment?.method === "cod" ? order.grandTotal : 0,
-            weight: 1000,
-            length: 20,
-            width: 15,
-            height: 10,
-            note: order.notes || "Giao hàng cẩn thận",
-            orderCode: order._id,
-            items: order.items?.map((item) => ({
-              name: item.title || "Sản phẩm",
-              code: Number(item.productId),
-              quantity: item.qty || 1,
-              price: item.price || 0,
-              length: 20,
-              width: 15,
-              height: 10,
-              weight: 200,
-            })),
-          };
-
-          const ghnResponse = await createGHNOrder(ghnData);
-          ghnOrderCode = ghnResponse.order_code;
-        }
-      }
-
-      const updateData = {
+  const { mutate: updateOrderStatus } = useMutation({
+    mutationFn: (newStatus) => {
+      const payload = {
         status: newStatus,
         ...(ghnOrderCode && {
-          shipping: {
-            ...order.shipping,
-            trackingNumber: ghnOrderCode, // Lưu mã vận đơn GHN
-          },
+          shipping: { trackingNumber: ghnOrderCode },
         }),
       };
 
-      const res = await fetch(`${API_URL}/api/admin/orders/${order._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(updateData),
+      return axios.put(`${API_URL}/api/admin/orders/${order._id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error("Failed to update status");
-      await res.json();
-
-      setOrder((prev) => ({
-        ...prev,
-        status: newStatus,
-        ...(ghnOrderCode && {
-          shipping: {
-            ...prev.shipping,
-            trackingNumber: ghnOrderCode,
-          },
-        }),
-      }));
-
+    },
+    onSuccess: () => {
       alert(
         `Đã cập nhật trạng thái thành công!${
           ghnOrderCode ? `\nMã vận đơn GHN: ${ghnOrderCode}` : ""
         }`
       );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert(`Lỗi: ${error.message}`);
+      queryClient.invalidateQueries(["order", id, token]);
+    },
+    onError: (error) => {
+      console.error("Lỗi cập nhật trạng thái:", error);
+      alert(
+        `Cập nhật trạng thái thất bại!\n${
+          error.response?.data?.message || error.message || "Vui lòng thử lại"
+        }`
+      );
+    },
+  });
+
+  const handleStatusUpdate = async (newStatus) => {
+    if (newStatus === "confirmed") {
+      const districtId = order.customer?.address?.districtId;
+      const wardCode = order.customer?.address?.wardCode;
+
+      if (!districtId || !wardCode) {
+        alert(
+          "Không thể tạo đơn GHN: Thiếu thông tin districtId hoặc wardCode."
+        );
+        return;
+      }
+
+      try {
+        const ghnData = {
+          toName: order.customer?.name || "",
+          toPhone: order.customer?.phone || "",
+          toAddress: `${order.customer?.address?.street}, ${order.customer?.address?.ward}, ${order.customer?.address?.district}, ${order.customer?.address?.province}`,
+          toWardCode: wardCode,
+          toDistrictId: districtId,
+          codAmount: order.payment?.method === "cod" ? order.grandTotal : 0,
+          weight: 1000,
+          length: 20,
+          width: 15,
+          height: 10,
+          note: order.notes || "Giao hàng cẩn thận",
+          orderCode: order._id,
+          items: order.items?.map((item) => ({
+            name: item.title || "Sản phẩm",
+            code: Number(item.productId),
+            quantity: item.qty || 1,
+            price: item.price || 0,
+            length: 20,
+            width: 15,
+            height: 10,
+            weight: 200,
+          })),
+        };
+
+        const ghnResponse = await createGHNOrder(ghnData);
+        setGhnOrderCode(ghnResponse.order_code);
+      } catch (error) {
+        console.error("Lỗi tạo đơn GHN:", error);
+        alert(
+          `Không thể tạo đơn GHN!\n${
+            error.response?.data?.message ||
+            error.message ||
+            "Vui lòng kiểm tra thông tin"
+          }`
+        );
+        return;
+      }
     }
+
+    updateOrderStatus(newStatus);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <AdminLayout
-        title="Chi tiết đơn hàng"
-        activeLabel="Đơn hàng"
-        backTo="/admin/orders"
-        showSaveButton={false}
-      >
+      <AdminLayout title="Chi tiết đơn hàng" activeLabel="Đơn hàng">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 mx-auto mb-4"></div>
             <p className="text-slate-600">Đang tải thông tin đơn hàng...</p>
           </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (!order) {
-    return (
-      <AdminLayout
-        title="Chi tiết đơn hàng"
-        activeLabel="Đơn hàng"
-        backTo="/admin/orders"
-        showSaveButton={false}
-      >
-        <div className="text-center py-12">
-          <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">
-            Không tìm thấy đơn hàng
-          </h3>
-          <p className="text-slate-600">Đơn hàng với ID này không tồn tại.</p>
         </div>
       </AdminLayout>
     );
@@ -259,7 +214,7 @@ export default function OrderDetail() {
         <div className="rounded-xl border border-slate-200 bg-white p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              {getStatusIcon(order.status)}
+              {getOrderStatus(order.status).icon}
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">
                   Trạng thái đơn hàng
@@ -271,11 +226,11 @@ export default function OrderDetail() {
             </div>
             <div className="flex flex-wrap gap-2">
               <span
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${getStatusColor(
-                  order.status
-                )}`}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${
+                  getOrderStatus(order.status).color
+                }`}
               >
-                {getStatusText(order.status)}
+                {getOrderStatus(order.status).text}
               </span>
             </div>
           </div>
@@ -459,11 +414,11 @@ export default function OrderDetail() {
                         Giao hàng tiêu chuẩn
                       </span>
                     </div>
-                    {order.shipping?.trackingNumber && (
+                    {(order?.shipping?.trackingNumber || ghnOrderCode) && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Mã vận đơn:</span>
                         <span className="text-slate-900 font-mono">
-                          {order.shipping.trackingNumber}
+                          {order?.shipping?.trackingNumber || ghnOrderCode}
                         </span>
                       </div>
                     )}

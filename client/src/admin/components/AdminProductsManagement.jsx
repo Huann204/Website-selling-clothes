@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Search,
   Plus,
@@ -12,23 +12,17 @@ import {
   Package,
   Tag,
   DollarSign,
-  Calendar,
-  User,
-  Phone,
-  Mail,
 } from "lucide-react";
 import { AdminLayout } from "./Layout/LayoutAdmin";
 import { Link } from "react-router-dom";
 import ConfirmModal from "./shared/ConfirmModal";
 import { AuthContext } from "../context/AuthContext";
-import API_URL from "../../config";
 import LoadingAdmin from "./shared/LoadingAdmin";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import API_URL from "../../config";
 
 export default function AdminProductsManagement() {
-  // const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -36,33 +30,38 @@ export default function AdminProductsManagement() {
   const [productToDelete, setProductToDelete] = useState(null);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
-  const headers = useMemo(
-    () => ({
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    }),
-    [token]
-  );
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/products`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        setProducts(result.products);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const queryClient = useQueryClient();
 
-    fetchData();
-  }, []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin-products"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/api/products`);
+      return res.data;
+    },
+  });
 
-  if (loading) {
+  const deleteMutation = useMutation({
+    mutationFn: async (productId) => {
+      const res = await axios.delete(`${API_URL}/api/products/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-products"]);
+      setConfirmOpen(false);
+      setProductToDelete(null);
+    },
+    onError: (error) => {
+      alert(error.message || "Xóa sản phẩm thất bại");
+      setConfirmOpen(false);
+      setProductToDelete(null);
+    },
+  });
+
+  const products = data?.products || [];
+
+  if (isLoading) {
     return (
       <AdminLayout
         title="Quản lý sản phẩm"
@@ -96,24 +95,9 @@ export default function AdminProductsManagement() {
     );
   }
 
-  const handleConfirmDelete = async () => {
-    try {
-      const res = await fetch(
-        `${API_URL}/api/products/${productToDelete._id}`,
-        {
-          method: "DELETE",
-          headers,
-        }
-      );
-
-      if (!res.ok) throw new Error("Xóa sản phẩm thất bại");
-
-      setProducts(products.filter((p) => p._id !== productToDelete._id));
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setConfirmOpen(false);
-      setProductToDelete(null);
+  const handleConfirmDelete = () => {
+    if (productToDelete) {
+      deleteMutation.mutate(productToDelete._id);
     }
   };
 

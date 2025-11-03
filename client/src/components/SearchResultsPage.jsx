@@ -1,38 +1,46 @@
-import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import AnnouncementBar from "./AnnouncementBar";
 import Loading from "../shared/Loading";
 import ProductCard from "./ProductCard";
 import API_URL from "../config";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 const SearchResultsPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const keyword = queryParams.get("q");
-
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!keyword) return;
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-
-    setLoading(true);
-    fetch(`${API_URL}/api/products/search?q=${encodeURIComponent(keyword)}`)
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .finally(() => setLoading(false));
   }, [keyword]);
-
-  if (loading)
+  const fetchSearchResults = async () => {
+    const res = await axios.get(
+      `${API_URL}/api/products/search?q=${encodeURIComponent(keyword)}`
+    );
+    return res.data;
+  };
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["searchResults", keyword],
+    queryFn: fetchSearchResults,
+    enabled: !!keyword,
+  });
+  if (isLoading)
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loading />
       </div>
     );
+  if (isError) return <p>Lỗi: {error.message}</p>;
 
   return (
     <>

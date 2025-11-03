@@ -5,51 +5,51 @@ import { FaBoxOpen, FaPhone } from "react-icons/fa";
 import { BsReceipt } from "react-icons/bs";
 import AnnouncementBar from "./AnnouncementBar";
 import API_URL from "../config";
-
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 const TrackingPage = () => {
   const [searchType, setSearchType] = useState("orderId");
   const [searchValue, setSearchValue] = useState("");
-  const [orderData, setOrderData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // const [shouldFetch, setShouldFetch] = useState(false);
+  // const [orderData, setOrderData] = useState(null);
+  // const [loading, setLoading] = useState(false);
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   }, []);
-  const handleSearch = async (e) => {
-    e.preventDefault();
 
-    if (!searchValue.trim()) {
-      setError("Vui lòng nhập thông tin tra cứu");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setOrderData(null);
-
+  const fetchOrderTracking = async () => {
     try {
       const endpoint =
         searchType === "orderId"
           ? `${API_URL}/api/admin/orders/${searchValue}`
           : `${API_URL}/api/admin/orders/phone/${searchValue}`;
-
-      const res = await fetch(endpoint);
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Không tìm thấy đơn hàng");
-      }
-
-      setOrderData(data);
+      const res = await axios.get(endpoint);
+      return res.data;
     } catch (err) {
-      setError(err.message || "Có lỗi xảy ra. Vui lòng thử lại!");
-    } finally {
-      setLoading(false);
+      if (err.response?.status === 404) {
+        throw new Error("Không tìm thấy đơn hàng. Vui lòng kiểm tra lại!");
+      } else if (err.response?.status === 400) {
+        throw new Error("Dữ liệu tra cứu không hợp lệ!");
+      } else {
+        throw new Error("Đã xảy ra lỗi, vui lòng thử lại sau.");
+      }
     }
   };
+  const {
+    data: orderData,
+    isLoading,
+    isError,
+    error: fetchError,
+    refetch,
+  } = useQuery({
+    queryKey: ["orderTracking", searchType, searchValue],
+    queryFn: fetchOrderTracking,
+    enabled: false,
+    retry: false, //không retry khi lỗi
+  });
 
   const getStatusInfo = (status) => {
     switch (status) {
@@ -124,7 +124,14 @@ const TrackingPage = () => {
 
           {/* Search Form */}
           <div className="max-w-xl mx-auto bg-white border rounded-lg p-4 md:p-6 shadow-sm">
-            <form onSubmit={handleSearch} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!searchValue.trim()) return;
+                refetch();
+              }}
+              className="space-y-4"
+            >
               {/* Search Type Toggle */}
               <div className="flex gap-2 justify-center">
                 <button
@@ -132,7 +139,6 @@ const TrackingPage = () => {
                   onClick={() => {
                     setSearchType("orderId");
                     setSearchValue("");
-                    setError("");
                   }}
                   className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-xs md:text-sm ${
                     searchType === "orderId"
@@ -148,7 +154,6 @@ const TrackingPage = () => {
                   onClick={() => {
                     setSearchType("phone");
                     setSearchValue("");
-                    setError("");
                   }}
                   className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-xs md:text-sm ${
                     searchType === "phone"
@@ -168,7 +173,6 @@ const TrackingPage = () => {
                   value={searchValue}
                   onChange={(e) => {
                     setSearchValue(e.target.value);
-                    setError("");
                   }}
                   placeholder={
                     searchType === "orderId"
@@ -181,19 +185,19 @@ const TrackingPage = () => {
               </div>
 
               {/* Error Message */}
-              {error && (
+              {isError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-                  {error}
+                  {fetchError.message}
                 </div>
               )}
 
               {/* Search Button */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="w-full bg-black text-white py-2.5 md:py-3 rounded-lg text-sm md:text-base font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
+                {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Đang tìm...
@@ -304,7 +308,7 @@ const TrackingPage = () => {
       )}
 
       {/* Empty State */}
-      {!orderData && !loading && (
+      {!orderData && !isLoading && (
         <div className="container mx-auto px-4 py-8 md:py-12">
           <div className="max-w-xl mx-auto text-center">
             <BiPackage className="text-gray-300 text-5xl md:text-7xl mx-auto mb-3 md:mb-4" />
