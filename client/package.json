@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@splidejs/react-splide": "^0.7.12",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "axios": "^1.13.1",
     "jwt-decode": "^4.0.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
