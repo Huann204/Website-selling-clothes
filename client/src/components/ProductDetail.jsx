@@ -1,17 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import AnnouncementBar from "./AnnouncementBar";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import { LuMinus, LuPlus } from "react-icons/lu";
-import ProductList from "./ProductList";
-import NewArrivals from "./NewArrivals";
+import NewArrivals from "@/components/NewArrivals";
 import { useNavigate, useParams } from "react-router-dom";
-import { CartContext } from "../context/CartContext";
-import sizeHim from "../assets/images/Size/sizehim.webp";
-import API_URL from "../config";
+import { CartContext } from "@/context/CartContext";
+import sizeHim from "@/assets/images/Size/sizehim.webp";
+import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 const ProductDetail = () => {
-  // const [products, setProducts] = useState({});
   const { slugId } = useParams();
   const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);

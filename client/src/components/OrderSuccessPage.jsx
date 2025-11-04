@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import AnnouncementBar from "./AnnouncementBar";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import { Link, useParams } from "react-router-dom";
-import API_URL from "../config";
+import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 const OrderSuccessPage = () => {

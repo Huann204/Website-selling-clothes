@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AdminLayout } from "./Layout/LayoutAdmin";
+import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import {
   Package,
   Truck,

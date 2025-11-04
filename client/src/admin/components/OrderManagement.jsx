@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AdminLayout } from "./Layout/LayoutAdmin";
+import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import {
   Eye,
   Package,
@@ -16,9 +16,9 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
-import LoadingAdmin from "./shared/LoadingAdmin";
-import { useOrdersData } from "../hooks/useOrdersData";
+import { AuthContext } from "@admin/context/AuthContext";
+import LoadingAdmin from "@admin/components/shared/LoadingAdmin";
+import { useOrdersData } from "@admin/hooks/useOrdersData";
 
 export default function OrderManagement() {
   const navigate = useNavigate();

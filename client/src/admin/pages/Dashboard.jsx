@@ -31,8 +31,8 @@ import {
   AreaChart,
 } from "recharts";
 import { Link } from "react-router-dom";
-import LoadingAdmin from "../components/shared/LoadingAdmin";
-import { useDashboardData } from "../hooks/useDashboardData";
+import LoadingAdmin from "@admin/components/shared/LoadingAdmin";
+import { useDashboardData } from "@admin/hooks/useDashboardData";
 
 const Dashboard = () => {
   const formatCurrency = (amount) => {

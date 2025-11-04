@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
-import AnnouncementBar from "../components/AnnouncementBar";
-import { CartContext } from "../context/CartContext";
+import AnnouncementBar from "@/components/AnnouncementBar";
+import { CartContext } from "@/context/CartContext";
 import { Link } from "react-router-dom";
 
 const CartPage = () => {

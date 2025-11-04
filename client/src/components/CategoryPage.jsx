@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import ProductList from "./ProductList";
+import ProductList from "@/components/ProductList";
 import { FaArrowLeft } from "react-icons/fa";
-import AnnouncementBar from "./AnnouncementBar";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import { useParams } from "react-router-dom";
 
 const CategoryPage = () => {

@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@admin/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-import API_URL from "../../config";
+import API_URL from "@/config";
 import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 

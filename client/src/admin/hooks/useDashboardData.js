@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { dashboardService } from "../services/dashboard.service";
+import { dashboardService } from "@admin/services/dashboard.service";
 
 export const useDashboardData = () => {
   const topProducts = useQuery({

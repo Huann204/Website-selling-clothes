@@ -1,20 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AnnouncementBar from "./AnnouncementBar";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import { RiVisaLine } from "react-icons/ri";
 import { IoWalletOutline } from "react-icons/io5";
 import { BsTruck } from "react-icons/bs";
-import { CartContext } from "../context/CartContext";
+import { CartContext } from "@/context/CartContext";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { calcGHNFee } from "../utils/ghn";
+import { calcGHNFee } from "@/utils/ghn";
 import {
   getGHNProvinces,
   getGHNDistricts,
   getGHNWards,
-} from "../utils/ghn-location";
+} from "@/utils/ghn-location";
 import { useQuery } from "@tanstack/react-query";
-import API_URL from "../config";
+import API_URL from "@/config";
+import axios from "axios";
 const CheckoutPage = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
@@ -45,7 +46,6 @@ const CheckoutPage = () => {
     }
     calculateShipping();
   }, [selectedDistrict, selectedWard]);
-  // ...existing code...
   const { data: provinces = [] } = useQuery({
     queryKey: ["ghnProvinces"],
     queryFn: getGHNProvinces,
@@ -62,8 +62,7 @@ const CheckoutPage = () => {
     queryFn: () => getGHNWards(selectedDistrict),
     enabled: !!selectedDistrict,
   });
-  // ...existing code...
-  // Validation functions
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -176,19 +175,12 @@ const CheckoutPage = () => {
         status: "pending",
       };
 
-      const response = await fetch(`${API_URL}/api/admin/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
+      const response = await axios.post(
+        `${API_URL}/api/admin/orders`,
+        orderData
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to create order");
-      }
-
-      const result = await response.json();
+      const result = response.data;
       const orderId = result._id;
 
       // Clear cart after successful order

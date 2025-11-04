@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import AdminLayout from "./Layout/AdminLayout";
-import { AuthContext } from "../context/AuthContext";
+import AdminLayout from "@admin/components/Layout/AdminLayout";
+import { AuthContext } from "@admin/context/AuthContext";
 import { Plus, Pencil, Trash2, RefreshCw, Shield } from "lucide-react";
-import API_URL from "../../config";
+import API_URL from "@/config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 

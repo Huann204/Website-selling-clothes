@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft, Save, Menu, X } from "lucide-react";
-import AdminSidebar from "../AdminSidebar";
+import AdminSidebar from "@admin/components/AdminSidebar";
 import { Link } from "react-router-dom";
 
 export default function AdminLayout({

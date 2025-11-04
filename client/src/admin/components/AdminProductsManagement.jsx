@@ -13,14 +13,14 @@ import {
   Tag,
   DollarSign,
 } from "lucide-react";
-import { AdminLayout } from "./Layout/LayoutAdmin";
+import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import { Link } from "react-router-dom";
-import ConfirmModal from "./shared/ConfirmModal";
-import { AuthContext } from "../context/AuthContext";
-import LoadingAdmin from "./shared/LoadingAdmin";
+import ConfirmModal from "@admin/components/shared/ConfirmModal";
+import { AuthContext } from "@admin/context/AuthContext";
+import LoadingAdmin from "@admin/components/shared/LoadingAdmin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import API_URL from "../../config";
+import API_URL from "@/config";
 
 export default function AdminProductsManagement() {
   const [searchTerm, setSearchTerm] = useState("");

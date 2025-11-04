@@ -2,9 +2,9 @@
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { FiShoppingCart } from "react-icons/fi";
-import Loading from "../shared/Loading";
+import Loading from "@/shared/Loading";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../config";
+import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {

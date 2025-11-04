@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import API_URL from "../config";
+import API_URL from "@/config";
 import { SiZalo } from "react-icons/si";
 import { toast } from "react-toastify";
 const ContactPage = () => {

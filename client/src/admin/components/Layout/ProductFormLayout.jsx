@@ -1,5 +1,5 @@
 import React from "react";
-import AdminLayout from "./AdminLayout";
+import AdminLayout from "@admin/components/Layout/AdminLayout";
 
 export default function ProductFormLayout({
   children,

@@ -1,8 +1,8 @@
 import { useLocation } from "react-router-dom";
-import AnnouncementBar from "./AnnouncementBar";
-import Loading from "../shared/Loading";
-import ProductCard from "./ProductCard";
-import API_URL from "../config";
+import AnnouncementBar from "@/components/AnnouncementBar";
+import Loading from "@/shared/Loading";
+import ProductCard from "@/components/ProductCard";
+import API_URL from "@/config";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";

@@ -1,8 +1,11 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ProductFormLayout, ProductFormContent } from "./Layout/LayoutAdmin";
-import { AuthContext } from "../context/AuthContext";
-import API_URL from "../../config";
+import {
+  ProductFormLayout,
+  ProductFormContent,
+} from "@admin/components/layout/LayoutAdmin";
+import { AuthContext } from "@admin/context/AuthContext";
+import API_URL from "@/config";
 
 export default function AdminProductCreate() {
   const navigate = useNavigate();

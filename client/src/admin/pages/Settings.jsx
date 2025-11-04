@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import AdminLayout from "../components/Layout/AdminLayout";
+import AdminLayout from "@admin/components/Layout/AdminLayout";
 import {
   Store,
   Mail,

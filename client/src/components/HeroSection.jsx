@@ -2,15 +2,15 @@ import React from "react";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 
-import Hero1 from "../assets/images/Hero/Hero1.jpeg";
-import Hero2 from "../assets/images/Hero/Hero2.jpeg";
-import Hero3 from "../assets/images/Hero/Hero3.jpeg";
-import Hero4 from "../assets/images/Hero/Hero4.jpeg";
+import Hero1 from "@/assets/images/Hero/Hero1.jpeg";
+import Hero2 from "@/assets/images/Hero/Hero2.jpeg";
+import Hero3 from "@/assets/images/Hero/Hero3.jpeg";
+import Hero4 from "@/assets/images/Hero/Hero4.jpeg";
 
-import Hero1pc from "../assets/images/Hero/Hero1-1.png";
-import Hero2pc from "../assets/images/Hero/Hero2-2.jpeg";
-import Hero3pc from "../assets/images/Hero/Hero3-3.jpeg";
-import Hero4pc from "../assets/images/Hero/Hero4-4.jpeg";
+import Hero1pc from "@/assets/images/Hero/Hero1-1.png";
+import Hero2pc from "@/assets/images/Hero/Hero2-2.jpeg";
+import Hero3pc from "@/assets/images/Hero/Hero3-3.jpeg";
+import Hero4pc from "@/assets/images/Hero/Hero4-4.jpeg";
 
 const slides = [
   { mobile: Hero1, desktop: Hero1pc },

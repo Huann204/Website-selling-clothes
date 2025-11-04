@@ -1,7 +1,7 @@
 // import React, { useEffect, useState } from "react";
-import API_URL from "../config";
-import Loading from "../shared/Loading";
-import ProductCard from "./ProductCard";
+import API_URL from "@/config";
+import Loading from "@/shared/Loading";
+import ProductCard from "@/components/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 const TopSellingList = ({ title, homepage, limit, page }) => {

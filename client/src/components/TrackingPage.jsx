@@ -3,16 +3,13 @@ import { BiSearch, BiPackage, BiCheckCircle } from "react-icons/bi";
 import { MdLocalShipping, MdCancel } from "react-icons/md";
 import { FaBoxOpen, FaPhone } from "react-icons/fa";
 import { BsReceipt } from "react-icons/bs";
-import AnnouncementBar from "./AnnouncementBar";
-import API_URL from "../config";
+import AnnouncementBar from "@/components/AnnouncementBar";
+import API_URL from "@/config";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 const TrackingPage = () => {
   const [searchType, setSearchType] = useState("orderId");
   const [searchValue, setSearchValue] = useState("");
-  // const [shouldFetch, setShouldFetch] = useState(false);
-  // const [orderData, setOrderData] = useState(null);
-  // const [loading, setLoading] = useState(false);
   useEffect(() => {
     window.scrollTo({
       top: 0,

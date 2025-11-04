@@ -1,6 +1,11 @@
 import React from "react";
 import { Tag } from "lucide-react";
-import { Field, Section, UploadBox, VariantCard } from "../ProductForm";
+import {
+  Field,
+  Section,
+  UploadBox,
+  VariantCard,
+} from "@admin/components/ProductForm";
 
 export default function ProductFormContent({
   // Form data

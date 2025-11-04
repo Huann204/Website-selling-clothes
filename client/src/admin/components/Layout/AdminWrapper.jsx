@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { AuthProvider } from "../../context/AutContext";
+import { AuthProvider } from "@admin/context/AutContext";
 
 function AdminWrapper() {
   return (

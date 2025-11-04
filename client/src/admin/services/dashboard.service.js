@@ -1,5 +1,5 @@
 import axios from "axios";
-import API_URL from "../../config";
+import API_URL from "@/config";
 
 const SUBCATEGORY_LABELS = {
   "ao-so-mi": "Áo sơ mi",

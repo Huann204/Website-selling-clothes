@@ -7,9 +7,9 @@ import {
   BiShoppingBag,
   BiX,
 } from "react-icons/bi";
-import Logo from "../assets/images/Logo.svg";
+import Logo from "@/assets/images/Logo.svg";
 import { Link } from "react-router-dom";
-import { CartContext } from "../context/CartContext";
+import { CartContext } from "@/context/CartContext";
 const Header = ({ onOpenMenu }) => {
   const { cart } = useContext(CartContext);
   const [isSearchOpen, setIsSearchOpen] = useState(false);

@@ -1,6 +1,6 @@
 import React from "react";
-import AdminLayout from "../components/Layout/AdminLayout";
-import UnderDevelopment from "../components/UnderDevelopment";
+import AdminLayout from "@admin/components/Layout/AdminLayout";
+import UnderDevelopment from "@admin/components/UnderDevelopment";
 
 const Analytics = () => {
   return (

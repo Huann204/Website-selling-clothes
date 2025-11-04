@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import Forbidden from "../components/Forbidden";
-import { AuthContext } from "../context/AuthContext";
+import Forbidden from "@admin/components/Forbidden";
+import { AuthContext } from "@admin/context/AuthContext";
 
 // requiredRole: "admin" hoặc "superadmin"
 export default function ProtectedRoute({ children, requiredRole }) {

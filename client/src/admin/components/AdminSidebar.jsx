@@ -13,7 +13,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@admin/context/AuthContext";
 export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
   const mainNav = [
     { label: "Tổng quan", icon: LayoutDashboard, to: "/admin" },

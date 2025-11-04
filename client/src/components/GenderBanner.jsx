@@ -1,6 +1,6 @@
 import React from "react";
-import Him from "../assets/images/GenderBanner/Him.jpeg";
-import Her from "../assets/images/GenderBanner/Her.jpeg";
+import Him from "@/assets/images/GenderBanner/Him.jpeg";
+import Her from "@/assets/images/GenderBanner/Her.jpeg";
 import { Link } from "react-router-dom";
 const GenderBanner = () => {
   return (
