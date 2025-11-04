@@ -13,9 +13,7 @@ import AdminLogin from "@/admin/pages/AdminLogin";
 import AdminRegister from "@/admin/pages/AdminRegister";
 import Dashboard from "@/admin/pages/Dashboard";
 import Categories from "@/admin/pages/Categories";
-import Customers from "@/admin/pages/Customers";
 import Promotions from "@/admin/pages/Promotions";
-import Analytics from "@/admin/pages/Analytics";
 import Settings from "@/admin/pages/Settings";
 import Messages from "@/admin/pages/Messages";
 import AdminWrapper from "@/admin/components/Layout/AdminWrapper";
@@ -136,14 +134,7 @@ const AppRoutes = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="customers"
-              element={
-                <ProtectedRoute>
-                  <Customers />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="promotions"
               element={
@@ -152,14 +143,7 @@ const AppRoutes = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="settings"
               element={

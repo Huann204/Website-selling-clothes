@@ -29,9 +29,9 @@ export default function AdminLayout({
       <div
         className={`lg:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg transition-transform duration-200 ease-in-out lg:static lg:translate-x-0`}
+        } fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 overflow-y-auto`}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 lg:hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 lg:hidden flex-shrink-0">
           <h2 className="font-semibold">Menu</h2>
           <button
             onClick={() => setSidebarOpen(false)}
