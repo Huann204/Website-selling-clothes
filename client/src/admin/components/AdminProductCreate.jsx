@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ProductFormLayout,
   ProductFormContent,
-} from "@admin/components/layout/LayoutAdmin";
+} from "@admin/components/Layout/LayoutAdmin";
 import { AuthContext } from "@admin/context/AuthContext";
 import API_URL from "@/config";
 
