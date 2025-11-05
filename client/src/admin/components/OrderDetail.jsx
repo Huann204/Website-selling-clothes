@@ -16,9 +16,8 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { createGHNOrder } from "../../utils/ghn";
-import API_URL from "../../config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import api from "@admin/utils/axios";
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -31,9 +30,7 @@ export default function OrderDetail() {
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", id, token],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/admin/orders/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/admin/orders/${id}`);
       return res.data;
     },
   });
@@ -99,9 +96,7 @@ export default function OrderDetail() {
         }),
       };
 
-      return axios.put(`${API_URL}/api/admin/orders/${order._id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return api.put(`/api/admin/orders/${order._id}`, payload);
     },
     onSuccess: () => {
       alert(

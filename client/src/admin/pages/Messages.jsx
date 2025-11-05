@@ -13,9 +13,8 @@ import {
   X,
   MessageSquare,
 } from "lucide-react";
-import API_URL from "../../config";
 import { AuthContext } from "../context/AuthContext";
-import axios from "axios";
+import api from "@admin/utils/axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Messages = () => {
@@ -33,12 +32,7 @@ const Messages = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["message", token],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/messages`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await api.get(`/api/messages`);
       return res.data;
     },
     enabled: !!token,
@@ -47,15 +41,7 @@ const Messages = () => {
   // Mark as read mutation
   const { mutate: markAsReadMutation } = useMutation({
     mutationFn: async (id) => {
-      const res = await axios.patch(
-        `${API_URL}/api/messages/${id}`,
-        { status: "read" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.patch(`/api/messages/${id}`, { status: "read" });
       return res.data;
     },
     onSuccess: () => {
@@ -69,11 +55,7 @@ const Messages = () => {
   // Delete message mutation
   const { mutate: deleteMessageMutation } = useMutation({
     mutationFn: async (id) => {
-      const res = await axios.delete(`${API_URL}/api/messages/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.delete(`/api/messages/${id}`);
       return res.data;
     },
     onSuccess: () => {

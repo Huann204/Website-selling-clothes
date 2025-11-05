@@ -1,6 +1,4 @@
-import axios from "axios";
-import API_URL from "@/config";
-
+import api from "@admin/utils/axios";
 const SUBCATEGORY_LABELS = {
   "ao-so-mi": "Áo sơ mi",
   "ao-thun": "Áo thun",
@@ -12,19 +10,17 @@ const SUBCATEGORY_LABELS = {
 
 export const dashboardService = {
   getTopProducts: async (limit = 5) => {
-    const res = await axios.get(
-      `${API_URL}/api/stats/sold-products?limit=${limit}`
-    );
+    const res = await api.get(`/api/stats/sold-products?limit=${limit}`);
     return res.data;
   },
 
   getRecentOrders: async (limit = 5) => {
-    const res = await axios.get(`${API_URL}/api/admin/orders?limit=${limit}`);
+    const res = await api.get(`/api/admin/orders?limit=${limit}`);
     return res.data;
   },
 
   getOrderStats: async () => {
-    const res = await axios.get(`${API_URL}/api/stats/order-stats`);
+    const res = await api.get(`/api/stats/order-stats`);
     const data = res.data;
     return [
       { name: "Hoàn thành", value: data.delivered || 0, color: "#10b981" },
@@ -36,9 +32,7 @@ export const dashboardService = {
   },
 
   getTopCategories: async (limit = 5) => {
-    const res = await axios.get(
-      `${API_URL}/api/stats/top-categories?limit=${limit}`
-    );
+    const res = await api.get(`/api/stats/top-categories?limit=${limit}`);
     const data = res.data;
     return data.map((item) => ({
       category: SUBCATEGORY_LABELS[item.subcategory] || item.subcategory,
@@ -47,7 +41,7 @@ export const dashboardService = {
   },
 
   getMonthlyRevenue: async () => {
-    const res = await axios.get(`${API_URL}/api/stats/monthly-stats`);
+    const res = await api.get(`/api/stats/monthly-stats`);
     const data = res.data;
     return data.map((item) => ({
       month: `T${item.month}`,
@@ -57,7 +51,7 @@ export const dashboardService = {
   },
 
   getOverviewStats: async () => {
-    const res = await axios.get(`${API_URL}/api/stats/overview-stats`);
+    const res = await api.get(`/api/stats/overview-stats`);
     const data = res.data;
     return {
       totalRevenue: data.totalRevenue || 0,

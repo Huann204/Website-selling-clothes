@@ -1,5 +1,5 @@
 import React from "react";
-import AdminLayout from "../components/Layout/AdminLayout";
+import AdminLayout from "@admin/components/Layout/AdminLayout";
 import UnderDevelopment from "@admin/components/UnderDevelopment";
 
 const Promotions = () => {

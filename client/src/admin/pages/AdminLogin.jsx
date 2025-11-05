@@ -2,10 +2,8 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "@admin/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-import API_URL from "@/config";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
-
+import api from "@admin/utils/axios";
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -19,7 +17,7 @@ export default function AdminLogin() {
     error,
   } = useMutation({
     mutationFn: async (data) => {
-      const res = await axios.post(`${API_URL}/api/admin/auth/login`, data);
+      const res = await api.post(`/api/admin/auth/login`, data);
       return res.data;
     },
     onSuccess: (data) => {

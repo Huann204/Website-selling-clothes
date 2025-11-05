@@ -4,8 +4,7 @@ import { AuthContext } from "@admin/context/AuthContext";
 import { Plus, Pencil, Trash2, RefreshCw, Shield } from "lucide-react";
 import API_URL from "@/config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-
+import api from "@admin/utils/axios";
 export default function ManageAdmins() {
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
@@ -29,12 +28,7 @@ export default function ManageAdmins() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["admins", token],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/admin/admins`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(res.data);
+      const res = await api.get(`/api/admin/admins`);
       return res.data;
     },
     enabled: !!token,
@@ -44,11 +38,7 @@ export default function ManageAdmins() {
 
   const createMutation = useMutation({
     mutationFn: async (formData) => {
-      const res = await axios.post(`${API_URL}/api/admin/admins`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.post(`/api/admin/admins`, formData);
       return res.data;
     },
     onSuccess: () => {
@@ -68,15 +58,7 @@ export default function ManageAdmins() {
   // React Query - Update admin mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, formData }) => {
-      const res = await axios.patch(
-        `${API_URL}/api/admin/admins/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.patch(`/api/admin/admins/${id}`, formData);
       return res.data;
     },
     onSuccess: () => {
@@ -95,11 +77,7 @@ export default function ManageAdmins() {
   // React Query - Delete admin mutation
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await axios.delete(`${API_URL}/api/admin/admins/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.delete(`/api/admin/admins/${id}`);
       return res.data;
     },
     onSuccess: () => {
@@ -116,15 +94,7 @@ export default function ManageAdmins() {
   // React Query - Toggle active mutation
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, active }) => {
-      const res = await axios.patch(
-        `${API_URL}/api/admin/admins/${id}`,
-        { active },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.patch(`/api/admin/admins/${id}`, { active });
       return res.data;
     },
     onSuccess: () => {

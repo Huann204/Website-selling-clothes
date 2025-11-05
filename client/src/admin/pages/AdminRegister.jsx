@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 import API_URL from "@/config";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
-
+import api from "@admin/utils/axios";
 export default function AdminRegister() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -20,10 +19,7 @@ export default function AdminRegister() {
     isSuccess,
   } = useMutation({
     mutationFn: async (userData) => {
-      const res = await axios.post(
-        `${API_URL}/api/admin/auth/register`,
-        userData
-      );
+      const res = await api.post(`/api/admin/auth/register`, userData);
       return res.data;
     },
     onSuccess: () => {

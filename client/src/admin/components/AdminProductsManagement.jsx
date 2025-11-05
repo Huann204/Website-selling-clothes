@@ -19,8 +19,7 @@ import ConfirmModal from "@admin/components/shared/ConfirmModal";
 import { AuthContext } from "@admin/context/AuthContext";
 import LoadingAdmin from "@admin/components/shared/LoadingAdmin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import API_URL from "@/config";
+import api from "@admin/utils/axios";
 
 export default function AdminProductsManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,16 +34,14 @@ export default function AdminProductsManagement() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/products`);
+      const res = await api.get(`/api/products`);
       return res.data;
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (productId) => {
-      const res = await axios.delete(`${API_URL}/api/products/${productId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.delete(`/api/products/${productId}`);
       return res.data;
     },
     onSuccess: () => {
@@ -57,6 +54,7 @@ export default function AdminProductsManagement() {
       setConfirmOpen(false);
       setProductToDelete(null);
     },
+    enabled: !!token,
   });
 
   const products = data?.products || [];

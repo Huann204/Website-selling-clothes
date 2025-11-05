@@ -12,11 +12,10 @@ import {
   Instagram,
   CheckCircle,
 } from "lucide-react";
-import API_URL from "../../config";
 import { AuthContext } from "../context/AuthContext";
 import { SiZalo } from "react-icons/si";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import api from "@admin/utils/axios";
 
 const Settings = () => {
   const { admin } = useContext(AuthContext);
@@ -29,9 +28,7 @@ const Settings = () => {
   const { data: generalSettings } = useQuery({
     queryKey: ["general-settings"],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/info`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/info`);
       return res.data;
     },
     enabled: !!token,
@@ -41,9 +38,7 @@ const Settings = () => {
   const { data: socialSettings } = useQuery({
     queryKey: ["social-settings"],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/api/social`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/social`);
       return res.data;
     },
     enabled: !!token,
@@ -63,12 +58,7 @@ const Settings = () => {
   // Update general settings
   const updateGeneralMutation = useMutation({
     mutationFn: async (data) => {
-      const res = await axios.put(`${API_URL}/api/info`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.put(`/api/info`, data);
       return res.data;
     },
     onSuccess: () => {
@@ -85,12 +75,7 @@ const Settings = () => {
 
   const updateSocialMutation = useMutation({
     mutationFn: async (data) => {
-      const res = await axios.put(`${API_URL}/api/social`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.put(`/api/social`, data);
       return res.data;
     },
     onSuccess: () => {

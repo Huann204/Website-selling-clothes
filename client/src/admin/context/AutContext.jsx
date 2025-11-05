@@ -11,7 +11,12 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setAdmin({ token, role: decoded.role });
+        const isExpired = decoded.exp * 1000 < Date.now();
+        if (isExpired) {
+          localStorage.removeItem("token");
+        } else {
+          setAdmin({ token, role: decoded.role });
+        }
       } catch {
         localStorage.removeItem("token");
       }
