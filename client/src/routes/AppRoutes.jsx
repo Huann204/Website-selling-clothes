@@ -23,6 +23,7 @@ import GuestRoute from "@/admin/components/GuestRoute/GuestRoute";
 import OrderSuccessPage from "@/components/OrderSuccessPage";
 import SearchResultsPage from "@/components/SearchResultsPage";
 import TrackingPage from "@/components/TrackingPage";
+import OrderFailedPage from "@/components/OrderFailedPage";
 const CartPage = lazy(() => import("@/components/CartPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const CategoryPage = lazy(() => import("@/components/CategoryPage"));
@@ -46,6 +47,7 @@ const AppRoutes = () => {
               path="order-success/:orderId"
               element={<OrderSuccessPage />}
             />
+            <Route path="order-failed/:orderId" element={<OrderFailedPage />} />
             <Route path="tracking" element={<TrackingPage />} />
             <Route path="contact" element={<ContactPage />} />
             <Route path="*" element={<NotFound />} />

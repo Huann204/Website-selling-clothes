@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import { RiVisaLine } from "react-icons/ri";
 import { IoWalletOutline } from "react-icons/io5";
@@ -29,9 +28,7 @@ const CheckoutPage = () => {
     address: "",
     paymentMethod: "",
   });
-  const navigate = useNavigate();
-  // ...existing code...
-  // Tính phí ship khi chọn đủ địa chỉ
+
   useEffect(() => {
     async function calculateShipping() {
       if (selectedDistrict && selectedWard) {
@@ -162,8 +159,8 @@ const CheckoutPage = () => {
           qty: item.qty,
         })),
         payment: {
-          method: formData.paymentMethod, // "card", "shoppeepay", "cod"
-          status: formData.paymentMethod === "cod" ? "pending" : "paid",
+          method: formData.paymentMethod,
+          status: "pending",
         },
         shipping: {
           fee: shippingFee,
@@ -182,10 +179,17 @@ const CheckoutPage = () => {
 
       const result = response.data;
       const orderId = result._id;
-
-      // Clear cart after successful order
-      navigate(`/order-success/${orderId}`);
-      setCart([]);
+      if (formData.paymentMethod === "vnpay") {
+        const vnpayResponse = await axios.post(`${API_URL}/api/pay`, {
+          orderId: orderId,
+          amount: orderData.grandTotal,
+          orderInfo: `Thanh toán đơn hàng ${orderId}`,
+        });
+        const vnpayUrl = vnpayResponse.data;
+        window.location.href = vnpayUrl.paymentUrl;
+        setCart([]);
+        return;
+      }
     } catch (error) {
       console.error("Error submitting order:", error);
       alert("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
@@ -407,38 +411,18 @@ const CheckoutPage = () => {
                   <input
                     type="radio"
                     name="payment"
-                    value="card"
+                    value="vnpay"
                     className="accent-black"
-                    checked={formData.paymentMethod === "card"}
+                    checked={formData.paymentMethod === "vnpay"}
                     onChange={(e) =>
                       handleInputChange("paymentMethod", e.target.value)
                     }
-                    aria-label="Thanh toán thẻ"
-                  />
-                  <div className="mx-[10px]">
-                    <RiVisaLine size={16} />
-                  </div>
-                  <span className="text-[11px] lg:text-[14px]">
-                    Thanh toán thẻ (ATM, Visa, MasterCard)
-                  </span>
-                </div>
-                <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="shoppeepay"
-                    className="accent-black"
-                    checked={formData.paymentMethod === "shoppeepay"}
-                    onChange={(e) =>
-                      handleInputChange("paymentMethod", e.target.value)
-                    }
-                    aria-label="Thanh toán ví ShoppePay"
                   />
                   <div className="mx-[10px]">
                     <IoWalletOutline size={16} />
                   </div>
                   <span className="text-[11px] lg:text-[14px]">
-                    Thanh toán bằng ví ShoppePay
+                    Thanh toán bằng VNPAY
                   </span>
                 </div>
                 <div className="mb-5 py-[10px] px-[15px] border border-[#ccc] w-full flex items-center">

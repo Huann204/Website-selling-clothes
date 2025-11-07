@@ -135,7 +135,7 @@ export default function OrderDetail() {
           toAddress: `${order.customer?.address?.street}, ${order.customer?.address?.ward}, ${order.customer?.address?.district}, ${order.customer?.address?.province}`,
           toWardCode: wardCode,
           toDistrictId: districtId,
-          codAmount: order.payment?.method === "cod" ? order.grandTotal : 0,
+          codAmount: order.payment?.method === "cod" ? order.total : 0,
           weight: 1000,
           length: 20,
           width: 15,
@@ -384,7 +384,7 @@ export default function OrderDetail() {
                       <span className="text-slate-600">Trạng thái:</span>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          order.paymentStatus === "paid"
+                          order.payment?.status === "paid"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
@@ -394,6 +394,14 @@ export default function OrderDetail() {
                           : "Chưa thanh toán"}
                       </span>
                     </div>
+
+                    {order.payment?.status !== "paid" && (
+                      <p className="mt-2 text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg italic">
+                        Đơn hàng chưa được thanh toán. Hãy **liên hệ xác nhận
+                        với khách** trước khi xác nhận đơn để tránh bom hàng nha
+                        ✨
+                      </p>
+                    )}
                   </div>
                 </div>
 
