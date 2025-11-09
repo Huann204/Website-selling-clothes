@@ -117,6 +117,16 @@ export default function OrderDetail() {
   });
 
   const handleStatusUpdate = async (newStatus) => {
+    if (
+      order.payment?.method === "vnpay" &&
+      order.payment?.status !== "paid" &&
+      newStatus === "confirmed"
+    ) {
+      const ok = confirm(
+        "VNPAY chưa thanh toán. Bạn đã liên hệ khách để xác nhận chưa?"
+      );
+      if (!ok) return;
+    }
     if (newStatus === "confirmed") {
       const districtId = order.customer?.address?.districtId;
       const wardCode = order.customer?.address?.wardCode;
@@ -395,13 +405,14 @@ export default function OrderDetail() {
                       </span>
                     </div>
 
-                    {order.payment?.status !== "paid" && (
-                      <p className="mt-2 text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg italic">
-                        Đơn hàng chưa được thanh toán. Hãy **liên hệ xác nhận
-                        với khách** trước khi xác nhận đơn để tránh bom hàng nha
-                        ✨
-                      </p>
-                    )}
+                    {order.payment?.method === "vnpay" &&
+                      order.payment?.status !== "paid" && (
+                        <p className="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 italic">
+                          Thanh toán VNPAY thất bại hoặc chưa hoàn tất. Hãy liên
+                          hệ khách để xác nhận lại phương thức thanh toán trước
+                          khi duyệt đơn nha 🫶
+                        </p>
+                      )}
                   </div>
                 </div>
 
