@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Header from "@layouts/DefaultLayout/components/Header";
+import Header from "@/components/Header";
 
-import NavMenu from "@layouts/DefaultLayout/components/NavMenu";
-import Footer from "@layouts/DefaultLayout/components/Footer";
+import NavMenu from "@/components/NavMenu";
+import Footer from "@/components/Footer";
 import { Outlet } from "react-router-dom";
-import ChatWidget from "@chatbot/components/ChatWidget";
+import ChatWidget from "@/components/ChatBot/ChatWidget";
 const DefaultLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   return (

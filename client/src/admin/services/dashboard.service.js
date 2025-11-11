@@ -1,4 +1,4 @@
-import api from "@admin/utils/axios";
+import api from "@shared/lib/axios";
 const SUBCATEGORY_LABELS = {
   "ao-so-mi": "Áo sơ mi",
   "ao-thun": "Áo thun",

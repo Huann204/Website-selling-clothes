@@ -1,35 +1,45 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import { CartProvider } from "@/context/CartContext";
-import DefaultLayout from "@/layouts/DefaultLayout";
-import AdminProductsManagement from "@/admin/components/AdminProductsManagement";
-import AdminProductCreate from "@/admin/components/AdminProductCreate";
-// import Test from "@/admin/components/test";
-import AdminProductEdit from "@/admin/components/AdminProductEdit";
-import NotFound from "@/shared/NotFound";
-import OrderManagement from "@/admin/components/OrderManagement";
-import OrderDetail from "@/admin/components/OrderDetail";
-import AdminLogin from "@/admin/pages/AdminLogin";
-import AdminRegister from "@/admin/pages/AdminRegister";
-import Dashboard from "@/admin/pages/Dashboard";
-import Categories from "@/admin/pages/Categories";
-import Promotions from "@/admin/pages/Promotions";
-import Settings from "@/admin/pages/Settings";
-import Messages from "@/admin/pages/Messages";
-import AdminWrapper from "@/admin/components/Layout/AdminWrapper";
-import ProtectedRoute from "@/admin/ProtectedRoute/ProtectedRoute";
-import ManageAdmins from "@/admin/components/ManageAdmins";
-import GuestRoute from "@/admin/components/GuestRoute/GuestRoute";
-import OrderSuccessPage from "@/components/OrderSuccessPage";
-import SearchResultsPage from "@/components/SearchResultsPage";
-import TrackingPage from "@/components/TrackingPage";
-import OrderFailedPage from "@/components/OrderFailedPage";
-const CartPage = lazy(() => import("@/components/CartPage"));
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const CategoryPage = lazy(() => import("@/components/CategoryPage"));
-const ProductDetail = lazy(() => import("@/components/ProductDetail"));
-const CheckoutPage = lazy(() => import("@/components/CheckoutPage"));
-const ContactPage = lazy(() => import("@/pages/ContactPage"));
+// Shared
+import { CartProvider } from "@cart/context/CartContext";
+import NotFound from "@shared/components/NotFound";
+
+// Layouts
+import DefaultLayout from "@layouts/DefaultLayout";
+
+// Admin Components
+import AdminProductsManagement from "@admin/components/products/ProductsManagement";
+import AdminProductCreate from "@admin/components/products/ProductCreate";
+import AdminProductEdit from "@admin/components/products/ProductEdit";
+import OrderManagement from "@admin/components/orders/OrderManagement";
+import OrderDetail from "@admin/components/orders/OrderDetail";
+import ManageAdmins from "@admin/components/admins/ManageAdmins";
+import AdminWrapper from "@admin/components/layout/AdminWrapper";
+import ProtectedRoute from "@admin/ProtectedRoute/ProtectedRoute";
+import GuestRoute from "@admin/components/GuestRoute/GuestRoute";
+
+// Admin Pages
+import AdminLogin from "@admin/pages/AdminLogin";
+import AdminRegister from "@admin/pages/AdminRegister";
+import Dashboard from "@admin/pages/Dashboard";
+import Categories from "@admin/pages/Categories";
+import Promotions from "@admin/pages/Promotions";
+import Settings from "@admin/pages/Settings";
+import Messages from "@admin/pages/Messages";
+
+// Customer Feature Pages
+import OrderSuccessPage from "@checkout/pages/OrderSuccessPage";
+import OrderFailedPage from "@checkout/pages/OrderFailedPage";
+import SearchResultsPage from "@products/pages/SearchResultsPage";
+import TrackingPage from "@tracking/pages/TrackingPage";
+
+// Lazy loaded pages
+const CartPage = lazy(() => import("@cart/components/CartPage"));
+const HomePage = lazy(() => import("@home/pages/HomePage"));
+const CategoryPage = lazy(() => import("@products/pages/CategoryPage"));
+const ProductDetail = lazy(() => import("@products/pages/ProductDetailPage"));
+const CheckoutPage = lazy(() => import("@checkout/pages/CheckoutPage"));
+const ContactPage = lazy(() => import("@home/pages/ContactPage"));
 
 const AppRoutes = () => {
   return (
