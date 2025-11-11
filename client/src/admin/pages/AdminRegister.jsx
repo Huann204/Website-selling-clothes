@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
-import API_URL from "@/config";
 import { useMutation } from "@tanstack/react-query";
-import api from "@admin/utils/axios";
+import api from "@shared/lib/axios";
 export default function AdminRegister() {
   const navigate = useNavigate();
   const [name, setName] = useState("");

@@ -5,7 +5,7 @@ import {
   Section,
   UploadBox,
   VariantCard,
-} from "@admin/components/ProductForm";
+} from "@admin/components/products/ProductForm";
 
 export default function ProductFormContent({
   // Form data

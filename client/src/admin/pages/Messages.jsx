@@ -14,7 +14,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
-import api from "@admin/utils/axios";
+import api from "@/shared/lib/axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Messages = () => {

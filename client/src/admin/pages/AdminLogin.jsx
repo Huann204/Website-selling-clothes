@@ -3,7 +3,7 @@ import { AuthContext } from "@admin/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import api from "@admin/utils/axios";
+import api from "@shared/lib/axios";
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();

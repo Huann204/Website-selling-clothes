@@ -15,7 +15,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { SiZalo } from "react-icons/si";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@admin/utils/axios";
+import api from "@shared/lib/axios";
 
 const Settings = () => {
   const { admin } = useContext(AuthContext);
