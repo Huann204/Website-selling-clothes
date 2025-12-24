@@ -42,9 +42,9 @@ export default function ChatMessage({ from, text }) {
               : "bg-white border border-gray-200 text-gray-800 rounded-bl-sm hover:border-gray-300"
           }`}
         >
-          <p className="whitespace-pre-wrap break-words ">
+          <div className="whitespace-pre-wrap break-words ">
             <ReactMarkdown>{text}</ReactMarkdown>
-          </p>
+          </div>
         </div>
 
         {/* Timestamp */}

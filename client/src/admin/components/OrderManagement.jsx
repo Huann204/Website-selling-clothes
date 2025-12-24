@@ -48,15 +48,17 @@ export default function OrderManagement() {
     );
   }
   if (isLoading) {
-    <adminLayout
-      title="Quản lý đơn hàng"
-      activeLabel="Đơn hàng"
-      backTo="/admin"
-      showBackButton={false}
-      showSaveButton={false}
-    >
-      <LoadingAdmin />
-    </adminLayout>;
+    return (
+      <AdminLayout
+        title="Quản lý đơn hàng"
+        activeLabel="Đơn hàng"
+        backTo="/admin"
+        showBackButton={false}
+        showSaveButton={false}
+      >
+        <LoadingAdmin />
+      </AdminLayout>
+    );
   }
 
   const getOrderStatus = (status) => {

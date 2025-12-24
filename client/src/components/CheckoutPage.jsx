@@ -15,7 +15,9 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import API_URL from "@/config";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const CheckoutPage = () => {
+  const navigate = useNavigate();
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
@@ -189,6 +191,10 @@ const CheckoutPage = () => {
         window.location.href = vnpayUrl.paymentUrl;
         setCart([]);
         return;
+      }
+      if (formData.paymentMethod === "cod") {
+        navigate(`/order-success/${orderId}`);
+        setCart([]);
       }
     } catch (error) {
       console.error("Error submitting order:", error);
