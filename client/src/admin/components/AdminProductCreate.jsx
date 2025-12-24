@@ -107,9 +107,9 @@ export default function AdminProductCreate() {
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "my_preset");
+    formData.append("upload_preset", "myimages");
     const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dghdbbkfc/image/upload",
+      "https://api.cloudinary.com/v1_1/dlzc1xr5p/image/upload",
       {
         method: "POST",
         body: formData,

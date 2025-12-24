@@ -6,6 +6,7 @@ import {
 } from "@admin/components/Layout/LayoutAdmin";
 import { AuthContext } from "@admin/context/AuthContext";
 import API_URL from "@/config";
+import AdminSidebar from "./AdminSidebar";
 
 export default function AdminProductEdit() {
   const navigate = useNavigate();
@@ -35,7 +36,6 @@ export default function AdminProductEdit() {
   const [variants, setVariants] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
   // Fetch dữ liệu sản phẩm để edit
@@ -43,7 +43,6 @@ export default function AdminProductEdit() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setLoadingData(true);
         const res = await fetch(`${API_URL}/api/products/${id}`);
         if (!res.ok) throw new Error("Không thể tải thông tin sản phẩm");
 
@@ -83,8 +82,6 @@ export default function AdminProductEdit() {
         console.error(err);
         alert("Có lỗi khi tải thông tin sản phẩm!");
         navigate("/admin/products");
-      } finally {
-        setLoadingData(false);
       }
     };
 
@@ -160,9 +157,9 @@ export default function AdminProductEdit() {
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "my_preset");
+    formData.append("upload_preset", "myimages");
     const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dghdbbkfc/image/upload",
+      "https://api.cloudinary.com/v1_1/dlzc1xr5p/image/upload",
       {
         method: "POST",
         body: formData,
@@ -251,18 +248,6 @@ export default function AdminProductEdit() {
       setLoading(false);
     }
   };
-
-  // Loading state khi đang fetch data
-  if (loadingData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 mx-auto mb-4"></div>
-          <p className="text-slate-600">Đang tải thông tin sản phẩm...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <ProductFormLayout
