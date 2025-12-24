@@ -3,10 +3,10 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { FiShoppingCart } from "react-icons/fi";
 import Loading from "@/shared/Loading";
-import { Link, useNavigate } from "react-router-dom";
 import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
   const Navigate = useNavigate();
   const fetchProducts = async () => {
@@ -80,12 +80,12 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
             return (
               <SplideSlide key={product._id}>
                 <div className="px-8 mb-4">
-                  <Link
-                    to={`/detail/${product?.slug}-${product?._id}`}
-                    state={{ product }}
-                    // onClick={() =>
-                    //   Navigate(`/detail/${product?.slug}-${product?._id}`)
-                    // }
+                  <div
+                    onClick={() =>
+                      Navigate(`/detail/${product?.slug}-${product?._id}`, {
+                        state: { product },
+                      })
+                    }
                     className="group relative w-full overflow-hidden cursor-pointer"
                   >
                     <img
@@ -99,7 +99,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
                       className="absolute inset-0 w-full h-full object-cover transform scale-0 opacity-0 transition-all duration-700 ease-in-out group-hover:scale-100 group-hover:opacity-100"
                       alt=""
                     />
-                  </Link>
+                  </div>
 
                   <div className="text-center">
                     <h3 className="mt-4 text-sm font-normal mb-[10px]">
