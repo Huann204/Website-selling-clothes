@@ -3,7 +3,7 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { FiShoppingCart } from "react-icons/fi";
 import Loading from "@/shared/Loading";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -48,7 +48,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
       ? n.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
       : n;
   return (
-    <div className="mt-5">
+    <div className="mt-5 w-full">
       <div className={`${title && "bg-[#aabec6]"} p-[5%]`}>
         {title && (
           <h2 className="text-[33px] font-semibold text-center mb-20">
@@ -57,7 +57,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
         )}
         <Splide
           options={{
-            perPage: 4,
+            // perPage: 4,
             rewind: true,
             type: "loop",
             autoplay: true,
@@ -66,8 +66,11 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
             arrows: false,
             pagination: true,
             perMove: 1,
+            perPage: 4,
             breakpoints: {
-              1024: { perPage: 1 },
+              1280: { perPage: 4 }, // >=1280
+              1024: { perPage: 2 }, // >=1024 = md
+              768: { perPage: 1 }, // <1024
             },
           }}
           className="relative pb-10"
@@ -77,10 +80,12 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
             return (
               <SplideSlide key={product._id}>
                 <div className="px-8 mb-4">
-                  <div
-                    onClick={() =>
-                      Navigate(`/detail/${product?.slug}-${product?._id}`)
-                    }
+                  <Link
+                    to={`/detail/${product?.slug}-${product?._id}`}
+                    state={{ product }}
+                    // onClick={() =>
+                    //   Navigate(`/detail/${product?.slug}-${product?._id}`)
+                    // }
                     className="group relative w-full overflow-hidden cursor-pointer"
                   >
                     <img
@@ -94,7 +99,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
                       className="absolute inset-0 w-full h-full object-cover transform scale-0 opacity-0 transition-all duration-700 ease-in-out group-hover:scale-100 group-hover:opacity-100"
                       alt=""
                     />
-                  </div>
+                  </Link>
 
                   <div className="text-center">
                     <h3 className="mt-4 text-sm font-normal mb-[10px]">
@@ -109,7 +114,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
                       )}
                     </p>
                   </div>
-                  <div className="w-full hidden lg:flex justify-center ">
+                  <div className="w-full hidden md:flex justify-center ">
                     <button
                       className="relative group min-w-[140px] overflow-hidden"
                       onClick={() =>

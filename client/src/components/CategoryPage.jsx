@@ -48,7 +48,7 @@ const CategoryPage = () => {
         <div className="text-[27.5px] font-semibold  mb-[15px]">
           {slug === "for-him" ? "FOR HIM" : "FOR HER"}
         </div>
-        <div className="text-[13.2px] text-[#adadad] mb-[50px] lg:max-w-[50%]">
+        <div className="text-[13.2px] text-[#adadad] mb-[50px] md:max-w-[50%]">
           Tất cả những sản phẩm Mới nhất nằm trong BST được mở bán Hàng Tuần sẽ
           được cập nhật liên tục tại đây. Chắc chắn bạn sẽ tìm thấy những sản
           phẩm Đẹp Nhất - Vừa Vặn Nhất - Phù Hợp nhất với phong cách của mình.
@@ -57,13 +57,13 @@ const CategoryPage = () => {
 
       <button
         onClick={() => setIsFilterOpen(true)}
-        className="py-2 px-4 bg-black text-white text-center text-[11px] cursor-pointer lg:hidden"
+        className="py-2 px-4 bg-black text-white text-center text-[11px] cursor-pointer md:hidden"
       >
         BỘ LỌC
       </button>
 
       {/* Layout desktop */}
-      <div className="hidden lg:grid grid-cols-10 gap-5 mb-[50px]">
+      <div className="hidden md:grid grid-cols-10 gap-5 mb-[50px]">
         {/* Sidebar */}
         <div className="col-span-2">
           <div className="mb-5">
@@ -99,19 +99,19 @@ const CategoryPage = () => {
           </button>
         </div>
         {/* Content */}
-        <div className="mt-[-70px] lg:col-span-8">
+        <div className="mt-[-70px] md:col-span-8">
           <ProductList category={slug} subcategory={selected} />
         </div>
       </div>
 
       {/* Content mobile */}
-      <div className="lg:hidden mt-[-70px]">
+      <div className="md:hidden mt-[-70px]">
         <ProductList category={slug} subcategory={selected} />
       </div>
 
       {/* Sidebar filter cho mobile */}
       <div
-        className={`fixed top-[70px] left-0 w-[45%] h-full bg-white z-[999] overflow-y-auto p-3 lg:hidden
+        className={`fixed top-[70px] left-0 w-[45%] h-full bg-white z-[999] overflow-y-auto p-3 md:hidden
            transform transition-transform duration-500 ease-in-out
     ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}`}
       >

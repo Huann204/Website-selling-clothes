@@ -68,9 +68,6 @@ export default function AdminSidebar({ activeLabel = "Tổng quan" }) {
             Online
           </span>
         </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
-          <div className="h-full w-2/3 bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-500" />
-        </div>
       </div>
 
       {/* Nav groups - Scrollable */}

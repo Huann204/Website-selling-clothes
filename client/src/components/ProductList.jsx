@@ -58,7 +58,9 @@ const ProductList = ({
         )}
         <div
           className={`grid grid-cols-1 ${
-            homepage ? "lg:grid-cols-4" : "lg:grid-cols-3"
+            homepage
+              ? "lg:grid-cols-4 md:grid-cols-3"
+              : "lg:grid-cols-3 md:grid-cols-2"
           }`}
         >
           {products.map((product) => {

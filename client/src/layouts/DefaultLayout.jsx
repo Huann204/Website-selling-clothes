@@ -12,8 +12,8 @@ const DefaultLayout = () => {
       <ChatWidget />
       <Header onOpenMenu={() => setMenuOpen(true)} />
       <div>
-        <main className="px-[10px] lg:px-[50px] ">
-          <div className="pt-[80px]  lg:pt-[110px] lg:max-w-[1620px] mx-auto">
+        <main className="px-[10px] md:px-[50px] ">
+          <div className="pt-[80px]  md:pt-[110px] lg:max-w-[1620px] mx-auto">
             <Outlet />
           </div>
         </main>

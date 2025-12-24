@@ -3,13 +3,14 @@ import { toast } from "react-toastify";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import NewArrivals from "@/components/NewArrivals";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "@/context/CartContext";
 import sizeHim from "@/assets/images/Size/sizehim.webp";
 import API_URL from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 const ProductDetail = () => {
+  const { state } = useLocation();
   const { slugId } = useParams();
   const navigate = useNavigate();
   const [seeMore, setSeeMore] = useState(false);
@@ -44,9 +45,12 @@ const ProductDetail = () => {
     const res = await axios.get(`${API_URL}/api/products/${id}`);
     return res.data;
   };
+  console.log(state?.product);
+
   const { data: products = {} } = useQuery({
     queryKey: ["product", slugId],
     queryFn: fetchProduct,
+    initialData: state?.product,
   });
 
   useEffect(() => {
@@ -55,7 +59,6 @@ const ProductDetail = () => {
     }
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
     });
   }, [products]);
 
@@ -153,7 +156,7 @@ const ProductDetail = () => {
               </span>
             </div>
 
-            {/* Colors (giữ UI như cũ) */}
+            {/* Colors*/}
             <div className="mt-[22px]">
               <div className="text-[11px] lg:text-[13px] font-medium mb-[11px]">
                 MÀU SẮC

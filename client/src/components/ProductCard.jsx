@@ -1,6 +1,6 @@
 import React from "react";
 import { FiShoppingCart } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -17,8 +17,10 @@ const ProductCard = ({ product }) => {
   return (
     <>
       <div className="px-8 mb-14" key={product._id}>
-        <div
-          onClick={() => navigate(`/detail/${product.slug}-${product._id}`)}
+        <Link
+          to={`/detail/${product.slug}-${product._id}`}
+          state={{ product }}
+          // onClick={() => navigate(`/detail/${product.slug}-${product._id}`)}
           className="group relative w-full overflow-hidden cursor-pointer"
         >
           <img
@@ -34,7 +36,7 @@ const ProductCard = ({ product }) => {
             className="absolute inset-0 w-full h-full object-cover transform scale-0 opacity-0 transition-all duration-700 ease-in-out group-hover:scale-100 group-hover:opacity-100"
             alt={product?.hoverImage?.alt || product.title}
           />
-        </div>
+        </Link>
 
         <div className="text-center">
           <h3 className="mt-4 text-sm font-normal mb-[10px]">
