@@ -7,23 +7,14 @@ import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 
 export default function ChatWindow({ onClose }) {
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("chatMessages");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            from: "bot",
-            text: "Xin chào! Tôi là trợ lý ảo của cửa hàng. Tôi có thể giúp bạn tìm kiếm sản phẩm, tư vấn size, hoặc giải đáp các thắc mắc khác. Bạn cần hỗ trợ gì?",
-          },
-        ];
-  });
+  const [messages, setMessages] = useState([
+    {
+      from: "bot",
+      text: "Xin chào! Tôi là trợ lý ảo của cửa hàng. Tôi có thể giúp bạn tìm kiếm sản phẩm, tư vấn size, hoặc giải đáp các thắc mắc khác. Bạn cần hỗ trợ gì?",
+    },
+  ]);
 
-  useEffect(() => {
-    localStorage.setItem("chatMessages", JSON.stringify(messages));
-  }, [messages]);
   const [input, setInput] = useState("");
-  // const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Dùng useMutation để gửi tin nhắn đến chatbot

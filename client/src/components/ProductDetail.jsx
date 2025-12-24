@@ -45,7 +45,6 @@ const ProductDetail = () => {
     const res = await axios.get(`${API_URL}/api/products/${id}`);
     return res.data;
   };
-  console.log(state?.product);
 
   const { data: products = {} } = useQuery({
     queryKey: ["product", slugId],
