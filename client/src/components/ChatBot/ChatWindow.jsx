@@ -68,7 +68,7 @@ export default function ChatWindow({ onClose }) {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 w-[calc(100vw-3rem)] h-[70vh] max-w-[280px] sm:bottom-6 sm:right-6 sm:w-80 sm:h-[420px] sm:max-w-none bg-white rounded-2xl shadow-2xl flex flex-col z-[99999] transition-all duration-300 border border-gray-200 backdrop-blur-sm chat-mobile-compact">
+    <div className="w-[calc(100vw-3rem)] h-[70vh] max-w-[280px] sm:w-80 sm:h-[420px] sm:max-w-none bg-white rounded-2xl shadow-2xl flex flex-col transition-all duration-300 border border-gray-200 backdrop-blur-sm chat-mobile-compact">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-3 flex justify-between items-center rounded-t-2xl">
         <div className="flex items-center space-x-2">
