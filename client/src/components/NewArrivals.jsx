@@ -59,7 +59,7 @@ const NewArrivals = ({ title, category, subcategory, tag, page, limit }) => {
           options={{
             // perPage: 4,
             rewind: true,
-            type: "loop",
+            type: "slide",
             autoplay: true,
             interval: 3000,
             speed: 800,
