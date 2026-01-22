@@ -5,6 +5,9 @@ import GenderBanner from "@/components/GenderBanner";
 import NewArrivals from "@/components/NewArrivals";
 import PolicySection from "@/components/PolicySection";
 import TopSellingList from "@/components/TopSellingList";
+import CustomerReviews from "@/components/CustomerReviews";
+import BrandValues from "@/components/BrandValues";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 const HomePage = () => {
   useEffect(() => {
@@ -21,6 +24,9 @@ const HomePage = () => {
       <NewArrivals title="WHAT'S NEW" />
       <PolicySection />
       <TopSellingList title="BEST SELLERS" limit={8} homepage />
+      <BrandValues />
+      <CustomerReviews />
+      <NewsletterSignup />
     </div>
   );
 };
