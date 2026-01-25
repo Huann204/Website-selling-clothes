@@ -3,42 +3,27 @@ import ProductList from "@/components/ProductList";
 import { FaArrowLeft } from "react-icons/fa";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import { useParams } from "react-router-dom";
-
+import api from "@admin/utils/axios";
+import { useQuery } from "@tanstack/react-query";
 const CategoryPage = () => {
   const { slug } = useParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selected, setSelected] = useState([]);
 
-  const Category = [
-    "Áo thun",
-    "Áo sơ mi",
-    "Quần Jean",
-    "Quần tây",
-    "Váy",
-    "Áo khoác",
-  ];
-  // const Size = ["S", "M", "L", "XL", "XXL"];
-  // const Colors = ["Trắng", "Hồng", "Đen", "Vàng", "Xanh dương"];
-  const subcategory = {
-    "Áo thun": "ao-thun",
-    "Áo sơ mi": "ao-so-mi",
-    "Quần Jean": "quan-jeans",
-    "Quần tây": "quan-tay",
-    Váy: "vay",
-    "Áo khoác": "ao-khoac",
-  };
+  const { data: subcategories = [] } = useQuery({
+    queryKey: ["subcategories", slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      const res = await api.get(`/api/subcategories?category=${slug}`);
+      return res.data;
+    },
+  });
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   }, [slug]);
-  // const handleChange = (item, checked) => {
-  //   const slug = subcategory[item]; // map sang slug
-  //   if (checked) {
-  //     setSelected(slug);
-  //   }
-  // };
 
   return (
     <div>
@@ -68,28 +53,32 @@ const CategoryPage = () => {
         <div className="col-span-2">
           <div className="mb-5">
             <h3 className="font-semibold mb-4 text-base">DANH MỤC SẢN PHẨM</h3>
-            {Category.map((item, index) => {
-              const slugItem = subcategory[item];
-              return (
-                <div key={index} className="mb-2 text-[15px] flex items-center">
-                  <input
-                    type="checkbox"
-                    name="category"
-                    checked={selected.includes(slugItem)}
-                    onChange={() =>
-                      setSelected((prev) => {
-                        const filter = prev.includes(slugItem)
-                          ? prev.filter((item) => item !== slugItem)
-                          : [...prev, slugItem];
-                        return filter;
-                      })
-                    }
-                    className="mr-[10px] h-[15px] w-[15px] accent-black"
-                  />
-                  {item}
-                </div>
-              );
-            })}
+            {subcategories
+              .filter((item) => item.status === true)
+              .map((item) => {
+                return (
+                  <div
+                    key={item._id}
+                    className="mb-2 text-[15px] flex items-center"
+                  >
+                    <input
+                      type="checkbox"
+                      name="category"
+                      checked={selected.includes(item._id)}
+                      onChange={() =>
+                        setSelected((prev) => {
+                          const filter = prev.includes(item._id)
+                            ? prev.filter((i) => i !== item._id)
+                            : [...prev, item._id];
+                          return filter;
+                        })
+                      }
+                      className="mr-[10px] h-[15px] w-[15px] accent-black"
+                    />
+                    {item.name}
+                  </div>
+                );
+              })}
           </div>
           <button
             onClick={() => setSelected([])}
@@ -124,24 +113,26 @@ const CategoryPage = () => {
         {/* Danh mục */}
         <div className="mb-5">
           <h3 className="font-semibold mb-3 text-[14px]">DANH MỤC SẢN PHẨM</h3>
-          {Category.map((item, index) => {
-            const slugItem = subcategory[item];
+          {subcategories.map((item) => {
             return (
-              <div key={index} className="mb-2 text-[12px] flex items-center">
+              <div
+                key={item._id}
+                className="mb-2 text-[12px] flex items-center"
+              >
                 <input
                   type="checkbox"
-                  checked={selected.includes(slugItem)}
+                  checked={selected.includes(item._id)}
                   className="mr-2 h-[15px] w-[15px]"
                   onChange={() => {
                     setSelected((prev) => {
-                      const filter = prev.includes(slugItem)
-                        ? prev.filter((item) => item !== slugItem)
-                        : [...prev, slugItem];
+                      const filter = prev.includes(item._id)
+                        ? prev.filter((i) => i !== item._id)
+                        : [...prev, item._id];
                       return filter;
                     });
                   }}
                 />
-                {item}
+                {item.name}
               </div>
             );
           })}

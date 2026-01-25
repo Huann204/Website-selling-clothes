@@ -72,7 +72,7 @@ const ProductDetail = () => {
     setSelectedSize(sz);
   };
   const activeVariant = products?.variants?.find(
-    (v) => v.color.name === selectedColor
+    (v) => v.color.name === selectedColor,
   );
   if (!products) {
     return <div className="p-10 text-center">Sản phẩm không tồn tại</div>;
@@ -366,7 +366,7 @@ const ProductDetail = () => {
           {products?.category && products?.subcategory && (
             <NewArrivals
               category={products.category}
-              subcategory={products.subcategory}
+              subcategory={products.subcategory._id}
             />
           )}
         </div>
