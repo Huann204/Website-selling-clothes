@@ -6,7 +6,6 @@ import {
 } from "@admin/components/Layout/LayoutAdmin";
 import { AuthContext } from "@admin/context/AuthContext";
 import API_URL from "@/config";
-import AdminSidebar from "./AdminSidebar";
 
 export default function AdminProductEdit() {
   const navigate = useNavigate();
@@ -24,8 +23,7 @@ export default function AdminProductEdit() {
   const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("for-her");
-  const [sex, setSex] = useState("her");
-  const [subcategory, setSubcategory] = useState("ao-thun");
+  const [subcategory, setSubcategory] = useState("");
   const [description, setDescription] = useState("");
   const [form, setForm] = useState("");
   const [origin, setOrigin] = useState("");
@@ -52,8 +50,7 @@ export default function AdminProductEdit() {
         setTitle(product.title || "");
         setBrand(product.brand || "");
         setCategory(product.category || "for-her");
-        setSex(product.gender || "her");
-        setSubcategory(product.subcategory || "ao-thun");
+        setSubcategory(product.subcategory?._id || "");
         setDescription(product.description || "");
         setForm(product.form || "");
         setOrigin(product.origin || "");
@@ -75,7 +72,7 @@ export default function AdminProductEdit() {
             product.images.map((img, idx) => ({
               name: `gallery-${idx}`,
               url: img.src,
-            }))
+            })),
           );
         }
       } catch (err) {
@@ -141,6 +138,7 @@ export default function AdminProductEdit() {
   const validateForm = () => {
     let newErrors = {};
     if (!title.trim()) newErrors.title = "Tên sản phẩm là bắt buộc";
+    if(!subcategory) newErrors.subcategory = "Vui lòng chọn tiểu mục";
     if (!price || Number(price) <= 0) newErrors.price = "Giá phải lớn hơn 0";
     if (Number(salePrice) < 0) newErrors.salePrice = "Giá phải lớn hơn 0";
     if (!thumbnailPreview) newErrors.thumbnail = "Cần chọn ảnh chính";
@@ -163,7 +161,7 @@ export default function AdminProductEdit() {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const data = await res.json();
@@ -203,7 +201,6 @@ export default function AdminProductEdit() {
       const productData = {
         title: title,
         category: category,
-        gender: sex,
         subcategory: subcategory,
         price: price,
         salePrice: salePrice,
@@ -264,8 +261,6 @@ export default function AdminProductEdit() {
         setBrand={setBrand}
         category={category}
         setCategory={setCategory}
-        sex={sex}
-        setSex={setSex}
         subcategory={subcategory}
         setSubcategory={setSubcategory}
         description={description}

@@ -6,7 +6,6 @@ import {
 } from "@admin/components/Layout/LayoutAdmin";
 import { AuthContext } from "@admin/context/AuthContext";
 import API_URL from "@/config";
-
 export default function AdminProductCreate() {
   const navigate = useNavigate();
   // State preview ảnh
@@ -19,8 +18,7 @@ export default function AdminProductCreate() {
   const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("for-her");
-  const [sex, setSex] = useState("her");
-  const [subcategory, setSubcategory] = useState("ao-thun");
+  const [subcategory, setSubcategory] = useState("");
   const [description, setDescription] = useState("");
   const [form, setForm] = useState("");
   const [origin, setOrigin] = useState("");
@@ -84,6 +82,7 @@ export default function AdminProductCreate() {
     }
 
     if (!title.trim()) newErrors.title = "Tên sản phẩm là bắt buộc";
+    if (!subcategory) newErrors.subcategory = "Vui lòng chọn tiểu mục";
     if (!price || Number(price) <= 0) newErrors.price = "Giá phải lớn hơn 0";
     if (salePrice && Number(salePrice) >= Number(price)) {
       newErrors.salePrice = "Giá khuyến mãi phải nhỏ hơn giá gốc";
@@ -104,6 +103,7 @@ export default function AdminProductCreate() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -113,7 +113,7 @@ export default function AdminProductCreate() {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const data = await res.json();
@@ -138,7 +138,6 @@ export default function AdminProductCreate() {
       const productData = {
         title: title,
         category: category,
-        gender: sex,
         subcategory: subcategory,
         price: price,
         salePrice: salePrice,
@@ -196,8 +195,6 @@ export default function AdminProductCreate() {
         setBrand={setBrand}
         category={category}
         setCategory={setCategory}
-        sex={sex}
-        setSex={setSex}
         subcategory={subcategory}
         setSubcategory={setSubcategory}
         description={description}

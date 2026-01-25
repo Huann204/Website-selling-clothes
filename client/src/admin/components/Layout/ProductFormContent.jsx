@@ -6,7 +6,8 @@ import {
   UploadBox,
   VariantCard,
 } from "@admin/components/ProductForm";
-
+import api from "@admin/utils/axios";
+import { useQuery } from "@tanstack/react-query";
 export default function ProductFormContent({
   // Form data
   title,
@@ -15,8 +16,6 @@ export default function ProductFormContent({
   setBrand,
   category,
   setCategory,
-  sex,
-  setSex,
   subcategory,
   setSubcategory,
   description,
@@ -49,6 +48,14 @@ export default function ProductFormContent({
   // Preview data
   formatPrice,
 }) {
+  const { data: subcategories } = useQuery({
+    queryKey: ["subcategories", category],
+    enabled: !!category,
+    queryFn: async () => {
+      const res = await api.get(`/api/subcategories?category=${category}`);
+      return res.data;
+    },
+  });
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
       {/* Form left */}
@@ -81,34 +88,27 @@ export default function ProductFormContent({
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option>for-her</option>
-                <option>for-him</option>
-              </select>
-            </Field>
-            <Field label="Giới tính">
-              <select
-                className="inputClass"
-                value={sex}
-                onChange={(e) => setSex(e.target.value)}
-              >
-                <option>her</option>
-                <option>him</option>
-                <option>unisex</option>
+                <option value="for-her">For Her</option>
+                <option value="for-him">For Him</option>
+                <option value="unisex">Unisex</option>
               </select>
             </Field>
             <Field label="Tiểu mục">
               <select
                 className="inputClass"
-                value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
+                value={subcategory || ""}
+                onChange={(e) => setSubcategory(e.target.value || "")}
               >
-                <option value={"ao-thun"}>Áo thun</option>
-                <option value={"ao-so-mi"}>Áo sơ mi</option>
-                <option value={"ao-khoac"}>Áo khoác</option>
-                <option value={"quan-jeans"}>Quần jeans</option>
-                <option value={"quan-tay"}>Quần tây</option>
-                <option value={"vay"}>Váy</option>
+                <option value="">--Chọn tiểu mục--</option>
+                {subcategories?.map((sub) => (
+                  <option key={sub._id} value={sub._id}>
+                    {sub.name}
+                  </option>
+                ))}
               </select>
+              {errors.subcategory && (
+                <p className="text-red-500 text-sm">{errors.subcategory}</p>
+              )}
             </Field>
           </div>
           <Field label="Mô tả">
