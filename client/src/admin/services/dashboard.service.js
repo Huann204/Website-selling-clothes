@@ -1,12 +1,4 @@
 import api from "@admin/utils/axios";
-const SUBCATEGORY_LABELS = {
-  "ao-so-mi": "Áo sơ mi",
-  "ao-thun": "Áo thun",
-  "quan-jean": "Quần jean",
-  "ao-khoac": "Áo khoác",
-  vay: "Váy",
-  "quan-tay": "Quần tây",
-};
 
 export const dashboardService = {
   getTopProducts: async (limit = 5) => {
@@ -35,7 +27,7 @@ export const dashboardService = {
     const res = await api.get(`/api/stats/top-categories?limit=${limit}`);
     const data = res.data;
     return data.map((item) => ({
-      category: SUBCATEGORY_LABELS[item.subcategory] || item.subcategory,
+      category: item.subcategory.slug,
       revenue: item.revenue,
     }));
   },
