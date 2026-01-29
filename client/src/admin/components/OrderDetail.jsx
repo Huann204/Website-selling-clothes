@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import {
@@ -23,7 +23,6 @@ export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [ghnOrderCode, setGhnOrderCode] = useState(null);
   const { admin } = useContext(AuthContext);
   const token = admin?.token;
 
@@ -88,22 +87,18 @@ export default function OrderDetail() {
   };
 
   const { mutate: updateOrderStatus } = useMutation({
-    mutationFn: (newStatus) => {
+    mutationFn: ({ status, trackingNumber }) => {
       const payload = {
-        status: newStatus,
-        ...(ghnOrderCode && {
-          shipping: { trackingNumber: ghnOrderCode },
+        status,
+        ...(trackingNumber && {
+          shipping: { trackingNumber },
         }),
       };
 
       return api.put(`/api/admin/orders/${order._id}`, payload);
     },
     onSuccess: () => {
-      alert(
-        `Đã cập nhật trạng thái thành công!${
-          ghnOrderCode ? `\nMã vận đơn GHN: ${ghnOrderCode}` : ""
-        }`
-      );
+      alert(`Đã cập nhật trạng thái thành công!`);
       queryClient.invalidateQueries(["order", id, token]);
     },
     onError: (error) => {
@@ -111,7 +106,7 @@ export default function OrderDetail() {
       alert(
         `Cập nhật trạng thái thất bại!\n${
           error.response?.data?.message || error.message || "Vui lòng thử lại"
-        }`
+        }`,
       );
     },
   });
@@ -123,17 +118,17 @@ export default function OrderDetail() {
       newStatus === "confirmed"
     ) {
       const ok = confirm(
-        "VNPAY chưa thanh toán. Bạn đã liên hệ khách để xác nhận chưa?"
+        "VNPAY chưa thanh toán. Bạn đã liên hệ khách để xác nhận chưa?",
       );
       if (!ok) return;
     }
-    if (newStatus === "confirmed") {
+    if (newStatus === "shipped") {
       const districtId = order.customer?.address?.districtId;
       const wardCode = order.customer?.address?.wardCode;
 
       if (!districtId || !wardCode) {
         alert(
-          "Không thể tạo đơn GHN: Thiếu thông tin districtId hoặc wardCode."
+          "Không thể tạo đơn GHN: Thiếu thông tin districtId hoặc wardCode.",
         );
         return;
       }
@@ -154,7 +149,7 @@ export default function OrderDetail() {
           orderCode: order._id,
           items: order.items?.map((item) => ({
             name: item.title || "Sản phẩm",
-            code: Number(item.productId),
+            code: item.productId?.toString() || item._id,
             quantity: item.qty || 1,
             price: item.price || 0,
             length: 20,
@@ -165,7 +160,12 @@ export default function OrderDetail() {
         };
 
         const ghnResponse = await createGHNOrder(ghnData);
-        setGhnOrderCode(ghnResponse.order_code);
+        const trackingNumber = ghnResponse?.order_code;
+        updateOrderStatus({
+          status: newStatus,
+          trackingNumber,
+        });
+        return;
       } catch (error) {
         console.error("Lỗi tạo đơn GHN:", error);
         alert(
@@ -173,13 +173,13 @@ export default function OrderDetail() {
             error.response?.data?.message ||
             error.message ||
             "Vui lòng kiểm tra thông tin"
-          }`
+          }`,
         );
         return;
       }
     }
 
-    updateOrderStatus(newStatus);
+    updateOrderStatus({ status: newStatus });
   };
 
   if (isLoading) {
@@ -428,11 +428,11 @@ export default function OrderDetail() {
                         Giao hàng tiêu chuẩn
                       </span>
                     </div>
-                    {(order?.shipping?.trackingNumber || ghnOrderCode) && (
+                    {order?.shipping?.trackingNumber && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">Mã vận đơn:</span>
                         <span className="text-slate-900 font-mono">
-                          {order?.shipping?.trackingNumber || ghnOrderCode}
+                          {order?.shipping?.trackingNumber}
                         </span>
                       </div>
                     )}
