@@ -363,9 +363,9 @@ const ProductDetail = () => {
           <div className="text-base font-semibold mb-[-30px] lg:text-xl">
             SẢN PHẨM TƯƠNG TỰ
           </div>
-          {products?.category && products?.subcategory && (
+          {products?.subcategory?.category && products?.subcategory && (
             <NewArrivals
-              category={products.category}
+              category={products.subcategory.category}
               subcategory={products.subcategory._id}
             />
           )}

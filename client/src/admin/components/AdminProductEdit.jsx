@@ -43,13 +43,11 @@ export default function AdminProductEdit() {
       try {
         const res = await fetch(`${API_URL}/api/products/${id}`);
         if (!res.ok) throw new Error("Không thể tải thông tin sản phẩm");
-
         const product = await res.json();
-
         // Điền dữ liệu vào form
         setTitle(product.title || "");
         setBrand(product.brand || "");
-        setCategory(product.category || "for-her");
+        setCategory(product.subcategory?.category);
         setSubcategory(product.subcategory?._id || "");
         setDescription(product.description || "");
         setForm(product.form || "");
@@ -138,7 +136,7 @@ export default function AdminProductEdit() {
   const validateForm = () => {
     let newErrors = {};
     if (!title.trim()) newErrors.title = "Tên sản phẩm là bắt buộc";
-    if(!subcategory) newErrors.subcategory = "Vui lòng chọn tiểu mục";
+    if (!subcategory) newErrors.subcategory = "Vui lòng chọn tiểu mục";
     if (!price || Number(price) <= 0) newErrors.price = "Giá phải lớn hơn 0";
     if (Number(salePrice) < 0) newErrors.salePrice = "Giá phải lớn hơn 0";
     if (!thumbnailPreview) newErrors.thumbnail = "Cần chọn ảnh chính";
@@ -200,7 +198,6 @@ export default function AdminProductEdit() {
       // Dữ liệu sản phẩm cập nhật
       const productData = {
         title: title,
-        category: category,
         subcategory: subcategory,
         price: price,
         salePrice: salePrice,

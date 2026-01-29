@@ -106,7 +106,7 @@ export default function AdminProductsManagement() {
     return product.variants.reduce((sumVariant, variant) => {
       const stockByVariant = variant.sizes.reduce(
         (sumSize, size) => sumSize + size.stock,
-        0
+        0,
       );
       return sumVariant + stockByVariant;
     }, 0);
@@ -128,7 +128,7 @@ export default function AdminProductsManagement() {
       product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase())
+        tag.toLowerCase().includes(searchTerm.toLowerCase()),
       );
 
     const matchesCategory =
@@ -328,7 +328,7 @@ export default function AdminProductsManagement() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                        {product.category}
+                        {product?.subcategory?.category}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -433,7 +433,7 @@ export default function AdminProductsManagement() {
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                      {product.category}
+                      {product.subcategory?.category}
                     </span>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-medium ${

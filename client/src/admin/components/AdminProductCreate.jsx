@@ -137,7 +137,6 @@ export default function AdminProductCreate() {
       // Dữ liệu sản phẩm
       const productData = {
         title: title,
-        category: category,
         subcategory: subcategory,
         price: price,
         salePrice: salePrice,
