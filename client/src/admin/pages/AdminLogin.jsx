@@ -2,30 +2,26 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "@admin/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { QueryClient, useMutation } from "@tanstack/react-query";
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const {
-    mutate: postAut,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: async () => {
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationFn: async ({ email, password }) => {
       await login(email, password);
     },
     onSuccess: async () => {
+      await QueryClient.invalidateQueries({ queryKey: ["admin-info"] });
       navigate("/admin");
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    postAut({
+    mutate({
       email,
       password,
     });

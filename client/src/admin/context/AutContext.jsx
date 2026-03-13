@@ -23,14 +23,14 @@ export const AuthProvider = ({ children }) => {
     );
 
     // refetch admin
-    await queryClient.invalidateQueries(["admin-info"]);
+    await queryClient.invalidateQueries({ queryKey: ["admin-info"] });
   };
 
   const logout = async () => {
     await api.post("/api/admin/auth/logout", {}, { withCredentials: true });
 
     // clear cache
-    queryClient.removeQueries(["admin-info"]);
+    queryClient.setQueryData(["admin-info"], null);
   };
 
   return (
