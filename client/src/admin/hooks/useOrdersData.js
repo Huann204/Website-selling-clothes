@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@admin/utils/axios";
 
-export const useOrdersData = (token) => {
+export const useOrdersData = () => {
   return useQuery({
-    queryKey: ["orders", token],
+    queryKey: ["orders"],
     queryFn: async () => {
       const res = await api.get(`/api/admin/orders`);
       return res.data;
     },
-    enabled: !!token,
   });
 };

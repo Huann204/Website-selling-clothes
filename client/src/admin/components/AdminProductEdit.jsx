@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ProductFormLayout,
@@ -34,8 +34,6 @@ export default function AdminProductEdit() {
   const [variants, setVariants] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   // Fetch dữ liệu sản phẩm để edit
 
   useEffect(() => {
@@ -224,8 +222,8 @@ export default function AdminProductEdit() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(productData),
       });
 

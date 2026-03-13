@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import AdminLayout from "@admin/components/Layout/AdminLayout";
 import { AuthContext } from "@admin/context/AuthContext";
 import { Plus, Pencil, Trash2, RefreshCw, Shield } from "lucide-react";
@@ -6,8 +6,6 @@ import API_URL from "@/config";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@admin/utils/axios";
 export default function ManageAdmins() {
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   const queryClient = useQueryClient();
 
   const [error, setError] = useState("");
@@ -26,12 +24,11 @@ export default function ManageAdmins() {
 
   // React Query - Fetch admins
   const { data, isLoading: loading } = useQuery({
-    queryKey: ["admins", token],
+    queryKey: ["admins"],
     queryFn: async () => {
       const res = await api.get(`/api/admin/admins`);
       return res.data;
     },
-    enabled: !!token,
   });
 
   const items = data || [];
@@ -50,7 +47,7 @@ export default function ManageAdmins() {
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Không tạo được quản trị viên"
+          "Không tạo được quản trị viên",
       );
     },
   });
@@ -69,7 +66,7 @@ export default function ManageAdmins() {
     },
     onError: (error) => {
       setError(
-        error.response?.data?.message || error.message || "Cập nhật thất bại"
+        error.response?.data?.message || error.message || "Cập nhật thất bại",
       );
     },
   });
@@ -86,7 +83,7 @@ export default function ManageAdmins() {
     },
     onError: (error) => {
       setError(
-        error.response?.data?.message || error.message || "Xoá thất bại"
+        error.response?.data?.message || error.message || "Xoá thất bại",
       );
     },
   });
@@ -105,7 +102,7 @@ export default function ManageAdmins() {
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Cập nhật trạng thái thất bại"
+          "Cập nhật trạng thái thất bại",
       );
     },
   });
@@ -117,7 +114,7 @@ export default function ManageAdmins() {
       (u) =>
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q) ||
-        u.role?.toLowerCase().includes(q)
+        u.role?.toLowerCase().includes(q),
     );
   })();
 

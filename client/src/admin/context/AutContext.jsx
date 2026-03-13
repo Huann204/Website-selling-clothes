@@ -1,42 +1,47 @@
-import React, { useState, useEffect } from "react";
+import api from "@admin/utils/axios";
 import { AuthContext } from "@admin/context/AuthContext";
-import { jwtDecode } from "jwt-decode";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const AuthProvider = ({ children }) => {
-  const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        const isExpired = decoded.exp * 1000 < Date.now();
-        if (isExpired) {
-          localStorage.removeItem("token");
-        } else {
-          setAdmin({ token, role: decoded.role });
-        }
-      } catch {
-        localStorage.removeItem("token");
-      }
-    }
-    setLoading(false);
-  }, []);
+  const { data: admin, isLoading } = useQuery({
+    queryKey: ["admin-info"],
+    queryFn: async () => {
+      const res = await api.get("/api/admin/auth/info");
+      return res.data;
+    },
+    retry: false,
+    staleTime: Infinity,
+  });
 
-  const login = (token) => {
-    localStorage.setItem("token", token);
-    const decoded = jwtDecode(token);
-    setAdmin({ token, role: decoded.role });
+  const login = async (email, password) => {
+    await api.post(
+      "/api/admin/auth/login",
+      { email, password },
+      { withCredentials: true },
+    );
+
+    // refetch admin
+    await queryClient.invalidateQueries(["admin-info"]);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setAdmin(null);
+  const logout = async () => {
+    await api.post("/api/admin/auth/logout", {}, { withCredentials: true });
+
+    // clear cache
+    queryClient.removeQueries(["admin-info"]);
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        admin,
+        loading: isLoading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

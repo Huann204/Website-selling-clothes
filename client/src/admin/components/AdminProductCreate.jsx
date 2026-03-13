@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ProductFormLayout,
@@ -30,8 +30,6 @@ export default function AdminProductCreate() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   const formatPrice = (v) =>
     new Intl.NumberFormat("vi-VN").format(Number(v)) + "₫";
   // thêm 1 variant rỗng
@@ -162,8 +160,8 @@ export default function AdminProductCreate() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(productData),
       });
       if (!res.ok) throw new Error("Lỗi khi lưu sản phẩm!");

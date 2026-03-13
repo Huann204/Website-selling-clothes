@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import {
@@ -25,10 +25,8 @@ export default function OrderManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
 
-  const { data: orders, isLoading } = useOrdersData(token);
+  const { data: orders, isLoading } = useOrdersData();
   if (orders?.length === 0) {
     return (
       <AdminLayout

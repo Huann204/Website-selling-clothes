@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@admin/components/Layout/AdminLayout";
 import {
   Store,
@@ -18,8 +18,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@admin/utils/axios";
 
 const Settings = () => {
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState("general");
@@ -31,7 +29,6 @@ const Settings = () => {
       const res = await api.get(`/api/info`);
       return res.data;
     },
-    enabled: !!token,
   });
 
   // Fetch social settings
@@ -41,7 +38,6 @@ const Settings = () => {
       const res = await api.get(`/api/social`);
       return res.data;
     },
-    enabled: !!token,
   });
 
   const [generalForm, setGeneralForm] = useState({});
@@ -129,8 +125,8 @@ const Settings = () => {
                 saveStatus === "success"
                   ? "bg-green-500/20 border border-green-500/50"
                   : saveStatus === "error"
-                  ? "bg-red-500/20 border border-red-500/50"
-                  : "bg-blue-500/20 border border-blue-500/50"
+                    ? "bg-red-500/20 border border-red-500/50"
+                    : "bg-blue-500/20 border border-blue-500/50"
               }`}
             >
               {saveStatus === "success" && (

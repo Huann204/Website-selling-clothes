@@ -3,7 +3,6 @@ import { AuthContext } from "@admin/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import api from "@admin/utils/axios";
 export default function AdminLogin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -16,12 +15,10 @@ export default function AdminLogin() {
     isError,
     error,
   } = useMutation({
-    mutationFn: async (data) => {
-      const res = await api.post(`/api/admin/auth/login`, data);
-      return res.data;
+    mutationFn: async () => {
+      await login(email, password);
     },
-    onSuccess: (data) => {
-      login(data.token);
+    onSuccess: async () => {
       navigate("/admin");
     },
   });
@@ -33,7 +30,6 @@ export default function AdminLogin() {
       password,
     });
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <div className="w-full max-w-sm bg-white p-6 rounded-2xl shadow-lg">
@@ -42,7 +38,7 @@ export default function AdminLogin() {
         </h2>
         {isError && (
           <p className="text-red-500 text-sm mb-3 text-center">
-            {error.response?.data?.message || "Đăng nhập thất bại!"}
+            {error.response?.data?.message || "Đăng nhập thất bại"}
           </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">

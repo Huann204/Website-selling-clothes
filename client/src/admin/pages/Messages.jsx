@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@admin/components/Layout/AdminLayout";
 import {
   Mail,
@@ -13,13 +13,10 @@ import {
   X,
   MessageSquare,
 } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
 import api from "@admin/utils/axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Messages = () => {
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   const queryClient = useQueryClient();
 
   const [filteredMessages, setFilteredMessages] = useState([]);
@@ -30,12 +27,11 @@ const Messages = () => {
 
   // Fetch messages
   const { data, isLoading } = useQuery({
-    queryKey: ["message", token],
+    queryKey: ["message"],
     queryFn: async () => {
       const res = await api.get(`/api/messages`);
       return res.data;
     },
-    enabled: !!token,
   });
 
   // Mark as read mutation
@@ -86,7 +82,7 @@ const Messages = () => {
         (msg) =>
           msg.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           msg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
+          msg.message?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 

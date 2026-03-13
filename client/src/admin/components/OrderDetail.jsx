@@ -1,4 +1,3 @@
-import React, { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import {
@@ -14,7 +13,6 @@ import {
   Printer,
   Download,
 } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
 import { createGHNOrder } from "../../utils/ghn";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@admin/utils/axios";
@@ -23,11 +21,9 @@ export default function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
 
   const { data: order, isLoading } = useQuery({
-    queryKey: ["order", id, token],
+    queryKey: ["order", id],
     queryFn: async () => {
       const res = await api.get(`/api/admin/orders/${id}`);
       return res.data;
@@ -99,7 +95,7 @@ export default function OrderDetail() {
     },
     onSuccess: () => {
       alert(`Đã cập nhật trạng thái thành công!`);
-      queryClient.invalidateQueries(["order", id, token]);
+      queryClient.invalidateQueries(["order", id]);
     },
     onError: (error) => {
       console.error("Lỗi cập nhật trạng thái:", error);

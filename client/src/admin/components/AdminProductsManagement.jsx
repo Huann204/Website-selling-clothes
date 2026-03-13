@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
   Search,
   Plus,
@@ -16,7 +16,6 @@ import {
 import { AdminLayout } from "@admin/components/Layout/LayoutAdmin";
 import { Link } from "react-router-dom";
 import ConfirmModal from "@admin/components/shared/ConfirmModal";
-import { AuthContext } from "@admin/context/AuthContext";
 import LoadingAdmin from "@admin/components/shared/LoadingAdmin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@admin/utils/axios";
@@ -27,8 +26,6 @@ export default function AdminProductsManagement() {
   const [statusFilter, setStatusFilter] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
-  const { admin } = useContext(AuthContext);
-  const token = admin?.token;
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
@@ -54,7 +51,6 @@ export default function AdminProductsManagement() {
       setConfirmOpen(false);
       setProductToDelete(null);
     },
-    enabled: !!token,
   });
 
   const products = data?.products || [];
