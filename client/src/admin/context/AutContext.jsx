@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
       { email, password },
       { withCredentials: true },
     );
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     await queryClient.refetchQueries({ queryKey: ["admin-info"] });
   };
